@@ -29,6 +29,21 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
+  app:
+    build: .
+    container_name: spring-alacena
+    ports:
+      - "8080:8080"
+    depends_on:
+      pg:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql-alacena:5432/recetas_db
+      - SPRING_DATASOURCE_USERNAME=alacena
+      - SPRING_DATASOURCE_PASSWORD=87654321
+    volumes:
+      - ./:/app  # Opcional para desarrollo, permite cambios en tiempo real
+
 volumes:
   pgdata:
   pgadmin-data:
