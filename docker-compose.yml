@@ -42,7 +42,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=alacena
       - SPRING_DATASOURCE_PASSWORD=87654321
     volumes:
-      - ./:/app
+      - ./:/app  # Opcional para desarrollo, permite cambios en tiempo real
 
 volumes:
   pgdata:
