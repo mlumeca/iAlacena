@@ -1,10 +1,10 @@
-package com.luisa.alacena;
+package com.luisa.iAlacena;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AlacenaApplicationTests {
+class IAlacenaApplicationTests {
 
 	@Test
 	void contextLoads() {
