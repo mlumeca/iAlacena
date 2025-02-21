@@ -4,6 +4,7 @@ import com.luisa.iAlacena.security.exceptionHandling.JwtException;
 import com.luisa.iAlacena.user.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -61,8 +62,6 @@ public class JwtService {
                 .expiration(tokeExpirationDate)
                 .signWith(secretKey)
                 .compact();
-
-
     }
 
     public UUID getUserIdFromAccessToken(String token) {

@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name="user_entity")
 public class User implements UserDetails {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -35,6 +34,8 @@ public class User implements UserDetails {
     private String email;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Set<UserRole> roles;
 
     private String avatar;
@@ -49,6 +50,9 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean isVerified = false;
     private String activationToken;
+
+    @Builder.Default
+    private boolean enabled = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

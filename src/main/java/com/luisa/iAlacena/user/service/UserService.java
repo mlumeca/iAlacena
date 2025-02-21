@@ -1,9 +1,11 @@
 package com.luisa.iAlacena.user.service;
 
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
+import com.luisa.iAlacena.user.error.ActivationExpiredException;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.repository.UserRepository;
+import com.luisa.iAlacena.util.SendGridMailSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,12 +24,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    //private final SendGridMailSender mailSender;
-
+    private final SendGridMailSender mailSender;
 
     @Value("${activation.duration}")
     private int activationDuration;
 
+    // no User, sino DTO de entrada
     public User createUser(CreateUserRequest createUserRequest) {
         User user = User.builder()
                 .username(createUserRequest.username())
@@ -42,7 +44,6 @@ public class UserService {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al enviar el email de activación");
         }
-
 
         return userRepository.save(user);
     }
@@ -61,5 +62,9 @@ public class UserService {
                     return userRepository.save(user);
                 })
                 .orElseThrow(() -> new ActivationExpiredException("El código de activación no existe o ha caducado"));
+    }
+
+    public boolean userExists(String username) {
+        return userRepository.existsByUsername(username);
     }
 }
