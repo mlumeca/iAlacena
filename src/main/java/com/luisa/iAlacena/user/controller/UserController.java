@@ -1,6 +1,7 @@
 package com.luisa.iAlacena.user.controller;
 
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
+import com.luisa.iAlacena.user.dto.UserResponse;
 import com.luisa.iAlacena.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -51,7 +52,7 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/register")
-    public ResponseEntity<Void> registerUser(@Valid @RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody CreateUserRequest request) {
         userService.registerUser(request);
         return ResponseEntity.status(201).build();
     }
