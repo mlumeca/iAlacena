@@ -1,6 +1,7 @@
 package com.luisa.iAlacena.user.controller;
 
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
+import com.luisa.iAlacena.user.dto.UserResponse;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +53,7 @@ public class AdminController {
                     content = @Content)
     })
     @PostMapping("/register")
-    public ResponseEntity<Void> registerAdmin(@Valid @RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> registerAdmin(@Valid @RequestBody CreateUserRequest request) {
         userService.registerUser(request, UserRole.ADMIN);
         return ResponseEntity.status(201).build();
     }
