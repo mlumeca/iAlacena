@@ -1,20 +1,22 @@
 package com.luisa.iAlacena.user.dto;
 
-import com.luisa.iAlacena.validation.annotation.FieldsValueMatch;
 import jakarta.validation.constraints.Email;
-import org.hibernate.validator.constraints.UniqueElements;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-// @NotBlank(username, email, password, verifyPassword)
-@FieldsValueMatch(
-        field = "password",
-        fieldMatch = "verifyPassword",
-        message = "La contraseña no coincide") // mejor si lo externalizamos al modelo de properties para futuras traducciones
 public record CreateUserRequest(
-        @UniqueElements
+        @NotBlank(message = "username.required")
+        @Size(min = 3, max = 20, message = "username.size")
         String username,
-        @Email
+
+        @NotBlank(message = "email.required")
+        @Email(message = "email.invalid")
         String email,
+
+        @NotBlank(message = "password.required")
+        @Size(min = 8, message = "password.size")
         String password,
+
+        @NotBlank(message = "verifyPassword.required")
         String verifyPassword
-) {
-}
+) {}

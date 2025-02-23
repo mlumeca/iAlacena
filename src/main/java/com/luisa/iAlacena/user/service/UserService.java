@@ -1,70 +1,42 @@
 package com.luisa.iAlacena.user.service;
 
+import com.luisa.iAlacena.error.PasswordMismatchException;
+import com.luisa.iAlacena.error.UserAlreadyExistsException;
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
-import com.luisa.iAlacena.user.error.ActivationExpiredException;
 import com.luisa.iAlacena.user.model.User;
-import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.repository.UserRepository;
-import com.luisa.iAlacena.util.SendGridMailSender;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Set;
-import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SendGridMailSender mailSender;
 
-    @Value("${activation.duration}")
-    private int activationDuration;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    // no User, sino DTO de entrada
-    public User createUser(CreateUserRequest createUserRequest) {
-        User user = User.builder()
-                .username(createUserRequest.username())
-                .password(passwordEncoder.encode(createUserRequest.password()))
-                .email(createUserRequest.email())
-                .roles(Set.of(UserRole.USER))
-                .activationToken(generateRandomActivationCode())
-                .build();
-
-        try {
-            mailSender.sendMail(createUserRequest.email(), "Activación de cuenta", user.getActivationToken());
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al enviar el email de activación");
+    public void registerUser(CreateUserRequest request) {
+        // Check if user already exists
+        if (userRepository.existsByEmailOrUsername(request.email(), request.username())) {
+            throw new UserAlreadyExistsException("user.exists");
         }
 
-        return userRepository.save(user);
-    }
+        // Verify passwords match
+        if (!request.password().equals(request.verifyPassword())) {
+            throw new PasswordMismatchException("password.mismatch");
+        }
 
-    public String generateRandomActivationCode() {
-        return UUID.randomUUID().toString();
-    }
+        // Build and save user
+        User user = User.builder()
+                .username(request.username())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .build();
 
-    public User activateAccount(String token) {
-
-        return userRepository.findByActivationToken(token)
-                .filter(user -> ChronoUnit.MINUTES.between(Instant.now(), user.getCreatedAt()) - activationDuration < 0)
-                .map(user -> {
-                    user.setEnabled(true);
-                    user.setActivationToken(null);
-                    return userRepository.save(user);
-                })
-                .orElseThrow(() -> new ActivationExpiredException("El código de activación no existe o ha caducado"));
-    }
-
-    public boolean userExists(String username) {
-        return userRepository.existsByUsername(username);
+        userRepository.save(user);
     }
 }

@@ -1,10 +1,6 @@
 package com.luisa.iAlacena.user.controller;
 
-import com.luisa.iAlacena.security.jwt.access.JwtService;
-import com.luisa.iAlacena.security.jwt.refresh.RefreshTokenService;
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
-import com.luisa.iAlacena.user.dto.UserResponse;
-import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -13,27 +9,22 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
-@RequiredArgsConstructor
-@Tag(name = "Usuario", description = "Realiza todas las operaciones de gestión del usuario")
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
-//    private final AuthenticationManager authenticationManager;
-//    private final JwtService jwtService;
-//    private final RefreshTokenService refreshTokenService;
 
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @Operation(summary = "Creación de un nuevo perfil de usuario")
     @ApiResponses(value = {
@@ -56,14 +47,12 @@ public class UserController {
                                     })
                     }),
             @ApiResponse(responseCode = "400",
-                    description = "¡Error!, Datos incorrectos ",
+                    description = "¡Error!, Datos incorrectos.",
                     content = @Content)
     })
-    @PostMapping("/user/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody CreateUserRequest createUserRequest) {
-        User user = userService.createUser(createUserRequest);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(UserResponse.of(user));
+    @PostMapping("/register")
+    public ResponseEntity<Void> registerUser(@Valid @RequestBody CreateUserRequest request) {
+        userService.registerUser(request);
+        return ResponseEntity.status(201).build();
     }
 }
