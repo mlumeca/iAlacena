@@ -4,6 +4,7 @@ import com.luisa.iAlacena.security.jwt.access.JwtService;
 import com.luisa.iAlacena.security.jwt.refresh.RefreshTokenService;
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
 import com.luisa.iAlacena.user.dto.LoginRequest;
+import com.luisa.iAlacena.user.dto.LogoutRequest;
 import com.luisa.iAlacena.user.dto.UserResponse;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.service.UserService;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,29 +46,10 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
-    @Operation(summary = "Inicio de sesión de Usuario con rol User o Admin")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Se ha iniciado sesión",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = CreateUserRequest.class)),
-                                    examples = {
-                                            @ExampleObject(
-                                                    value = """
-                                         {
-                                                                   "username": "juanperez",
-                                                                   "password": "12345"
-                                                                 }
-                                    """
-                                            )
-                                    })
-                    }),
-            @ApiResponse(responseCode = "403",
-                    description = "Usuario o contraseña incorrectos.",
-                    content = @Content)
-    })
     @PostMapping("/login")
+    @Operation(summary = "User login", description = "Authenticates a user and returns access and refresh tokens")
+    @ApiResponse(responseCode = "200", description = "Login successful")
+    @ApiResponse(responseCode = "401", description = "Invalid credentials")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("Received login request for username: {}", request.username());
         try {

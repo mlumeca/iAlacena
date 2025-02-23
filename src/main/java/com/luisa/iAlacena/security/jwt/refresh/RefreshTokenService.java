@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
@@ -41,5 +42,16 @@ public class RefreshTokenService {
             throw new JwtException("Refresh token expired. Please log in again.");
         }
         return refreshToken;
+    }
+
+    public void invalidateRefreshToken(String refreshToken) {
+        try {
+            UUID tokenId = UUID.fromString(refreshToken);
+            RefreshToken token = refreshTokenRepository.findById(tokenId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+            refreshTokenRepository.delete(token);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid refresh token format", e);
+        }
     }
 }
