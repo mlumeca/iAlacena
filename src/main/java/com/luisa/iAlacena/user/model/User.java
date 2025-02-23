@@ -63,7 +63,6 @@ public class User {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.isVerified = false;
-        this.role = UserRole.USER;
     }
 
     @Override
