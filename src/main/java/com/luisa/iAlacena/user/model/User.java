@@ -1,5 +1,6 @@
 package com.luisa.iAlacena.user.model;
 
+import com.luisa.iAlacena.recipe.model.Recipe;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -9,10 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -61,10 +59,17 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<RecetasFavoritas> recetasFavoritas;
+    */
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private java.util.List<Receta> recetas;
-     */
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @ToString.Exclude
+    @Builder.Default
+    private List<Recipe> recipes = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -121,5 +126,15 @@ public class User implements UserDetails {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    //helpers
+    public void addRecipes (Recipe r){
+        r.setUser(this);
+        this.getRecipes().add(r);
+    }
+    public void removeRecipes (Recipe r){
+        this.getRecipes().remove(r);
+        r.setUser(null);
     }
 }
