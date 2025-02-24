@@ -20,7 +20,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void registerUser(CreateUserRequest request, UserRole defaultRole) {
+    public User registerUser(CreateUserRequest request) {
+        return registerUser(request, UserRole.USER);
+    }
+
+    public User registerUser(CreateUserRequest request, UserRole defaultRole) {
         if (userRepository.existsByEmailOrUsername(request.email(), request.username())) {
             throw new UserAlreadyExistsException("user.exists");
         }
@@ -35,10 +39,7 @@ public class UserService {
                 .password(passwordEncoder.encode(request.password()))
                 .role(defaultRole)
                 .build();
-        userRepository.save(user);
-    }
 
-    public void registerUser(CreateUserRequest request) {
-        registerUser(request, UserRole.USER);
+        return userRepository.save(user);
     }
 }
