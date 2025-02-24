@@ -40,9 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Excluir el endpoint /auth/login del procesamiento del filtro
         String requestURI = request.getRequestURI();
-        if ("/auth/login".equals(requestURI)) {
+        if ("/user/register".equals(requestURI) || "/admin/register".equals(requestURI) ||
+                "/auth/login".equals(requestURI) || "/auth/activate".equals(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
