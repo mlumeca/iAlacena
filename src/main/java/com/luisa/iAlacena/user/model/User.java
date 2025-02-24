@@ -48,7 +48,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean isVerified;
 
+    @Column(name = "activation_token")
     private String activationToken;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_token_expiry")
+    private LocalDateTime resetPasswordTokenExpiry;
 
     /*
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

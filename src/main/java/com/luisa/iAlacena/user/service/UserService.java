@@ -7,6 +7,8 @@ import com.luisa.iAlacena.storage.model.FileMetadata;
 import com.luisa.iAlacena.storage.service.StorageService;
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
 import com.luisa.iAlacena.user.dto.EditUserRequest;
+import com.luisa.iAlacena.user.dto.ForgotPasswordRequest;
+import com.luisa.iAlacena.user.dto.ResetPasswordRequest;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.repository.UserRepository;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
@@ -200,5 +203,39 @@ public class UserService {
                     return userRepository.save(user);
                 })
                 .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
+    }
+
+    public void forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + request.username()));
+
+        String token = UUID.randomUUID().toString();
+        user.setResetPasswordToken(token);
+        user.setResetPasswordTokenExpiry(LocalDateTime.now().plus(24, ChronoUnit.HOURS));
+        userRepository.save(user);
+
+        String resetLink = "http://localhost:8080/user/reset-password?token=" + token; // Cambiado de "/users/" a "/user/"
+        String message = "Haz clic en el siguiente enlace para restablecer tu contraseña: " + resetLink +
+                "\nEste enlace es válido por 24 horas.";
+        try {
+            mailSender.sendMail(user.getEmail(), "Recuperación de Contraseña - Alacena", message);
+            log.info("Password reset email sent to: {}", user.getEmail());
+        } catch (IOException e) {
+            log.error("Failed to send password reset email to {}: {}", user.getEmail(), e.getMessage());
+            throw new RuntimeException("Error sending password reset email", e);
+        }
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByResetPasswordToken(request.token())
+                .filter(u -> u.getResetPasswordTokenExpiry() != null && u.getResetPasswordTokenExpiry().isAfter(LocalDateTime.now()))
+                .orElseThrow(() -> new RuntimeException("Invalid or expired reset password token"));
+
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenExpiry(null);
+        userRepository.save(user);
+
+        log.info("Password reset successfully for user: {}", user.getUsername());
     }
 }

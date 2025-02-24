@@ -45,4 +45,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             WHERE u.id = :id
             """)
     Optional<User> findById(@Param("id") UUID id);
+
+    @Query("""
+            SELECT u
+            FROM User u
+            WHERE u.resetPasswordToken = :token
+            """)
+    Optional<User> findByResetPasswordToken(@Param("token") String token);
 }

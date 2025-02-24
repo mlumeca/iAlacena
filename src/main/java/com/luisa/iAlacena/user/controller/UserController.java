@@ -1,9 +1,7 @@
 package com.luisa.iAlacena.user.controller;
 
 import com.luisa.iAlacena.storage.dto.FileResponse;
-import com.luisa.iAlacena.user.dto.CreateUserRequest;
-import com.luisa.iAlacena.user.dto.EditUserRequest;
-import com.luisa.iAlacena.user.dto.UserResponse;
+import com.luisa.iAlacena.user.dto.*;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.service.UserService;
@@ -296,5 +294,40 @@ public class UserController {
             @PathVariable UUID id) {
         User user = userService.getUserById(currentUser, id);
         return ResponseEntity.ok(UserResponse.of(user));
+    }
+
+    @Operation(summary = "Solicitar recuperación de contraseña",
+            description = "Permite a un usuario solicitar un enlace de recuperación de contraseña por email.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Solicitud de recuperación enviada con éxito",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content)
+    })
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        userService.forgotPassword(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Restablecer contraseña",
+            description = "Permite a un usuario restablecer su contraseña usando un token de recuperación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Contraseña restablecida con éxito",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o token expirado/inválido",
+                    content = @Content)
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        userService.resetPassword(request);
+        return ResponseEntity.noContent().build();
     }
 }
