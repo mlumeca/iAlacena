@@ -38,4 +38,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             FROM User u
             """)
     Page<User> findAll(Pageable pageable);
+
+    @Query("""
+            SELECT u
+            FROM User u
+            WHERE u.id = :id
+            """)
+    Optional<User> findById(@Param("id") UUID id);
 }
