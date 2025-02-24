@@ -1,5 +1,6 @@
 package com.luisa.iAlacena.user.controller;
 
+import com.luisa.iAlacena.storage.dto.FileResponse;
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
 import com.luisa.iAlacena.user.dto.EditUserRequest;
 import com.luisa.iAlacena.user.dto.UserResponse;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -130,6 +132,47 @@ public class UserController {
             @Valid @RequestBody EditUserRequest request) {
         User updatedUser = userService.editUserProfile(currentUser, request);
         return ResponseEntity.ok(UserResponse.of(updatedUser));
+    }
+
+    @Operation(summary = "Actualizar la foto de perfil del usuario",
+            description = "Permite al usuario autenticado actualizar su foto de perfil subiendo una imagen.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Foto de perfil actualizada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = FileResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": "profile-pic.jpg",
+                                                        "name": "profile-pic.jpg",
+                                                        "uri": "http://localhost:8080/download/profile-pic.jpg",
+                                                        "type": "image/jpeg",
+                                                        "size": 102400
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Archivo inválido",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propietario puede actualizar su foto",
+                    content = @Content)
+    })
+    @PostMapping("/{id}/profile-picture")
+    public ResponseEntity<FileResponse> updateProfilePicture(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable UUID id,
+            @RequestPart("file") MultipartFile file) {
+        FileResponse response = userService.updateProfilePicture(currentUser, id, file);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Obtener todos los usuarios registrados",

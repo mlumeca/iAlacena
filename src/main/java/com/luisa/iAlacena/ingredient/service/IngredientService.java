@@ -17,20 +17,18 @@ public class IngredientService {
     }
 
     public Ingredient createIngredient(User currentUser, CreateIngredientRequest request) {
-        // Validar que el usuario sea administrador
         if (!currentUser.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
             throw new AccessDeniedException("Only administrators can create ingredients");
         }
 
-        // Validar unicidad del nombre
         if (ingredientRepository.existsByName(request.name())) {
             throw new IllegalArgumentException("Ingredient with name '" + request.name() + "' already exists");
         }
 
         Ingredient ingredient = Ingredient.builder()
                 .name(request.name())
-                .quantity(1) // Valor por defecto
+                .quantity(1)
                 .unitOfMeasure(request.unitOfMeasure())
                 .build();
 
