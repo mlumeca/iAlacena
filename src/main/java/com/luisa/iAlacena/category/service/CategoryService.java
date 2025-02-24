@@ -5,6 +5,8 @@ import com.luisa.iAlacena.category.dto.EditCategoryRequest;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
 import com.luisa.iAlacena.user.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -61,5 +63,9 @@ public class CategoryService {
         }
 
         return categoryRepository.save(category);
+    }
+
+    public Page<Category> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 }
