@@ -11,6 +11,9 @@ import com.luisa.iAlacena.util.SendGridMailSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,6 +88,14 @@ public class UserService {
         currentUser.setEmail(request.email());
 
         return userRepository.save(currentUser);
+    }
+
+    public Page<User> getAllUsers(User currentUser, Pageable pageable) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can access the list of users");
+        }
+        return userRepository.findAll(pageable);
     }
 
     private String generateRandomActivationCode() {

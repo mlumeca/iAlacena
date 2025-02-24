@@ -44,8 +44,7 @@ public class AuthController {
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
     }
-
-    //SWAGGER
+    
     @Operation(summary = "Activar cuenta con token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cuenta activada con éxito",
