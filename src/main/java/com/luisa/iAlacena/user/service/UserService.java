@@ -6,18 +6,33 @@ import com.luisa.iAlacena.user.dto.CreateUserRequest;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.repository.UserRepository;
+import com.luisa.iAlacena.util.SendGridMailSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SendGridMailSender mailSender;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    @Value("${activation.duration:60}") // Duración en minutos, por defecto 60
+    private int activationDuration;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SendGridMailSender mailSender) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mailSender = mailSender;
     }
 
     public User registerUser(CreateUserRequest request) {
@@ -38,8 +53,36 @@ public class UserService {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .role(defaultRole)
+                .activationToken(generateRandomActivationCode())
                 .build();
 
-        return userRepository.save(user);
+        user = userRepository.save(user);
+
+        try {
+            String message = "Tu código de activación es: " + user.getActivationToken() +
+                    "\nUsa este enlace para activar tu cuenta: http://localhost:8080/auth/activate?token=" + user.getActivationToken();
+            mailSender.sendMail(user.getEmail(), "Activa tu cuenta en Alacena", message);
+            log.info("Activation email sent to: {}", user.getEmail());
+        } catch (IOException e) {
+            log.error("Failed to send activation email to {}: {}", user.getEmail(), e.getMessage());
+            throw new RuntimeException("Error sending activation email", e);
+        }
+
+        return user;
+    }
+
+    private String generateRandomActivationCode() {
+        return UUID.randomUUID().toString();
+    }
+
+    public User activateAccount(String token) {
+        return userRepository.findByActivationToken(token)
+                .filter(user -> ChronoUnit.MINUTES.between(user.getCreatedAt(), java.time.LocalDateTime.now()) < activationDuration)
+                .map(user -> {
+                    user.setVerified(true);
+                    user.setActivationToken(null);
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
     }
 }

@@ -45,6 +45,23 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
+    //SWAGGER
+    @Operation(summary = "Activar cuenta con token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cuenta activada con éxito",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Token inválido o expirado",
+                    content = @Content)
+    })
+    @GetMapping("/activate")
+    public ResponseEntity<UserResponse> activateAccount(@RequestParam("token") String token) {
+        log.info("Received activation request with token: {}", token);
+        User user = userService.activateAccount(token);
+        log.info("Account activated for user: {}", user.getUsername());
+        return ResponseEntity.ok(UserResponse.of(user));
+    }
+
     @Operation(summary = "Inicio de sesión.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",

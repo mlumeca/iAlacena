@@ -50,6 +50,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean isVerified;
 
+    private String activationToken;
+
     /*
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private ShoppingCart shoppingCart;
