@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/user/all").authenticated()
                         .requestMatchers(HttpMethod.GET, "/user/profile/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/recipe/create").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/ingredient/create").authenticated()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
