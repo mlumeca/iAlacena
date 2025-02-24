@@ -20,7 +20,7 @@ public class SendGridMailSender {
 
     private static final Logger log = LoggerFactory.getLogger(SendGridMailSender.class);
 
-    @Value("${sendgrid.api.key}")
+    @Value("${SENDGRID_API_KEY}")
     private String sendgridApiKey;
 
     @Async
