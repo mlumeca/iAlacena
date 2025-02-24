@@ -3,6 +3,7 @@ package com.luisa.iAlacena.user.service;
 import com.luisa.iAlacena.error.PasswordMismatchException;
 import com.luisa.iAlacena.error.UserAlreadyExistsException;
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
+import com.luisa.iAlacena.user.dto.EditUserRequest;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.repository.UserRepository;
@@ -26,7 +27,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final SendGridMailSender mailSender;
 
-    @Value("${activation.duration:60}") // Duración en minutos, por defecto 60
+    @Value("${activation.duration:60}")
     private int activationDuration;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SendGridMailSender mailSender) {
@@ -43,7 +44,6 @@ public class UserService {
         if (userRepository.existsByEmailOrUsername(request.email(), request.username())) {
             throw new UserAlreadyExistsException("user.exists");
         }
-
         if (!request.password().equals(request.verifyPassword())) {
             throw new PasswordMismatchException("password.mismatch");
         }
@@ -65,10 +65,26 @@ public class UserService {
             log.info("Activation email sent to: {}", user.getEmail());
         } catch (IOException e) {
             log.error("Failed to send activation email to {}: {}", user.getEmail(), e.getMessage());
-            throw new RuntimeException("Error sending activation email", e);
+            throw new RuntimeException("Error sending activation email: " + e.getMessage(), e);
         }
 
         return user;
+    }
+
+    public User editUserProfile(User currentUser, EditUserRequest request) {
+        if (!request.username().equals(currentUser.getUsername()) &&
+                userRepository.existsByEmailOrUsername(request.email(), request.username())) {
+            throw new UserAlreadyExistsException("user.exists");
+        }
+        if (!request.email().equals(currentUser.getEmail()) &&
+                userRepository.existsByEmailOrUsername(request.email(), request.username())) {
+            throw new UserAlreadyExistsException("user.exists");
+        }
+
+        currentUser.setUsername(request.username());
+        currentUser.setEmail(request.email());
+
+        return userRepository.save(currentUser);
     }
 
     private String generateRandomActivationCode() {

@@ -1,0 +1,10 @@
+INSERT INTO user_entity (id, username, email, password, role, created_at, is_verified, activation_token, avatar)
+values('550e8400-e29b-41d4-a716-446655440001', 'user1', 'user1@example.com', '$2a$10$XURPShlN/qDkj5pCtcPZiOAEiGyPdZ43aL1o3vQ2uX/T8s2gDPNWC', 'USER', '2025-02-24 12:00:00', true, null, null);
+INSERT INTO user_entity (id, username, email, password, role, created_at, is_verified, activation_token, avatar)
+values('550e8400-e29b-41d4-a716-446655440002', 'user2', 'user2@example.com', '$2a$10$XURPShlN/qDkj5pCtcPZiOAEiGyPdZ43aL1o3vQ2uX/T8s2gDPNWC', 'USER', '2025-02-24 12:00:00', true, null, null);
+INSERT INTO user_entity (id, username, email, password, role, created_at, is_verified, activation_token, avatar)
+values('550e8400-e29b-41d4-a716-446655440003', 'user3', 'user3@example.com', '$2a$10$XURPShlN/qDkj5pCtcPZiOAEiGyPdZ43aL1o3vQ2uX/T8s2gDPNWC', 'USER', '2025-02-24 12:00:00', true, null, null);
+INSERT INTO user_entity (id, username, email, password, role, created_at, is_verified, activation_token, avatar)
+values('550e8400-e29b-41d4-a716-446655440004', 'admin1', 'admin1@example.com', '$2a$10$XURPShlN/qDkj5pCtcPZiOAEiGyPdZ43aL1o3vQ2uX/T8s2gDPNWC', 'ADMIN', '2025-02-24 12:00:00', true, null, null);
+INSERT INTO user_entity (id, username, email, password, role, created_at, is_verified, activation_token, avatar)
+values('550e8400-e29b-41d4-a716-446655440005', 'user5', 'user5@example.com', '$2a$10$XURPShlN/qDkj5pCtcPZiOAEiGyPdZ43aL1o3vQ2uX/T8s2gDPNWC', 'USER', '2025-02-24 12:00:00', true, null, null);
