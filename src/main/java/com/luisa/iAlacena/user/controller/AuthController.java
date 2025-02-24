@@ -2,18 +2,18 @@ package com.luisa.iAlacena.user.controller;
 
 import com.luisa.iAlacena.security.jwt.access.JwtService;
 import com.luisa.iAlacena.security.jwt.refresh.RefreshTokenService;
-import com.luisa.iAlacena.user.dto.CreateUserRequest;
 import com.luisa.iAlacena.user.dto.LoginRequest;
+import com.luisa.iAlacena.user.dto.LogoutRequest;
 import com.luisa.iAlacena.user.dto.UserResponse;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Autentificación", description = "El controlador de la autentificación.")
 public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
@@ -44,26 +45,26 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
-    @Operation(summary = "Inicio de sesión de Usuario con rol User o Admin")
+    @Operation(summary = "Inicio de sesión.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Se ha iniciado sesión",
+                    description = "Se ha iniciado sesión.",
                     content = {
                             @Content(mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = CreateUserRequest.class)),
+                                    schema = @Schema(implementation = UserResponse.class),
                                     examples = {
                                             @ExampleObject(
                                                     value = """
-                                         {
-                                                                   "username": "juanperez",
-                                                                   "password": "12345"
-                                                                 }
-                                    """
+                                                    {
+                                                        "username": "juanperez",
+                                                        "password": "password1234",
+                                                    }
+                                                    """
                                             )
                                     })
                     }),
-            @ApiResponse(responseCode = "403",
-                    description = "Usuario o contraseña incorrectos.",
+            @ApiResponse(responseCode = "401",
+                    description = "¡Error!, Datos incorrectos.",
                     content = @Content)
     })
     @PostMapping("/login")
@@ -90,5 +91,34 @@ public class AuthController {
             log.error("Unexpected error during login for username: {}. Error: {}", request.username(), e.getMessage());
             throw e;
         }
+    }
+
+    @Operation(summary = "Cerrado de sesión.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Se ha cerrado la sesión.",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "refreshToken": "938b04e9-b6cb-4759-a59f-814d7a780fe2",
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "401",
+                    description = "Sesión caducada.",
+                    content = @Content)
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
+        log.info("Received logout request with refresh token: {}", request.refreshToken());
+        refreshTokenService.invalidateRefreshToken(request.refreshToken());
+        log.info("Refresh token invalidated successfully");
+        return ResponseEntity.noContent().build();
     }
 }

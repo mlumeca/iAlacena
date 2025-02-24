@@ -15,12 +15,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user_entity")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "user_entity")
 public class User implements UserDetails {
 
     @Id
