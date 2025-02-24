@@ -21,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/user")
 @Tag(name = "Usuario", description = "El controlador de usuarios.")
@@ -30,6 +32,104 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @Operation(summary = "Creación de un nuevo perfil de usuario",
+            description = "Registra un nuevo usuario con rol USER.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Se ha creado un usuario",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                                                        "username": "juanperez",
+                                                        "token": null,
+                                                        "refreshToken": null
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "¡Error!, Datos incorrectos.",
+                    content = @Content)
+    })
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody CreateUserRequest request) {
+        User user = userService.registerUser(request);
+        return ResponseEntity.status(201).body(UserResponse.of(user));
+    }
+
+    @Operation(summary = "Creación de un nuevo perfil de administrador",
+            description = "Registra un nuevo usuario con rol ADMIN.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Se ha creado un administrador",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                                                        "username": "adminperez",
+                                                        "token": null,
+                                                        "refreshToken": null
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "¡Error!, Datos incorrectos.",
+                    content = @Content)
+    })
+    @PostMapping("/register-admin")
+    public ResponseEntity<UserResponse> registerAdmin(@Valid @RequestBody CreateUserRequest request) {
+        User user = userService.registerUser(request, UserRole.ADMIN);
+        return ResponseEntity.status(201).body(UserResponse.of(user));
+    }
+
+    @Operation(summary = "Editar el perfil del usuario autenticado",
+            description = "Permite al usuario autenticado actualizar su username y email.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Perfil actualizado con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                                                        "username": "juanperez_nuevo",
+                                                        "token": null,
+                                                        "refreshToken": null
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o ya en uso",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content)
+    })
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponse> editUserProfile(
+            @AuthenticationPrincipal User currentUser,
+            @Valid @RequestBody EditUserRequest request) {
+        User updatedUser = userService.editUserProfile(currentUser, request);
+        return ResponseEntity.ok(UserResponse.of(updatedUser));
     }
 
     @Operation(summary = "Obtener todos los usuarios registrados",
@@ -82,7 +182,7 @@ public class UserController {
                     content = @Content)
     })
     @GetMapping("/all")
-    public ResponseEntity<Page<UserResponse>> findAll(
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -92,71 +192,11 @@ public class UserController {
         return ResponseEntity.ok(responsePage);
     }
 
-    @Operation(summary = "Creación de un nuevo perfil de usuario")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201",
-                    description = "Se ha creado un usuario",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = UserResponse.class),
-                                    examples = {
-                                            @ExampleObject(
-                                                    value = """
-                                                    {
-                                                        "id": "550e8400-e29b-41d4-a716-446655440000",
-                                                        "username": "juanperez",
-                                                        "token": null,
-                                                        "refreshToken": null
-                                                    }
-                                                    """
-                                            )
-                                    })
-                    }),
-            @ApiResponse(responseCode = "400",
-                    description = "¡Error!, Datos incorrectos.",
-                    content = @Content)
-    })
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody CreateUserRequest request) {
-        User user = userService.registerUser(request);
-        return ResponseEntity.status(201).body(UserResponse.of(user));
-    }
-
-    @Operation(summary = "Creación de un nuevo perfil de administrador")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201",
-                    description = "Se ha creado un administrador",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = UserResponse.class),
-                                    examples = {
-                                            @ExampleObject(
-                                                    value = """
-                                                    {
-                                                        "id": "550e8400-e29b-41d4-a716-446655440000",
-                                                        "username": "juanperez",
-                                                        "token": null,
-                                                        "refreshToken": null
-                                                    }
-                                                    """
-                                            )
-                                    })
-                    }),
-            @ApiResponse(responseCode = "400",
-                    description = "¡Error!, Datos incorrectos.",
-                    content = @Content)
-    })
-    @PostMapping("/register-admin")
-    public ResponseEntity<UserResponse> registerAdmin(@Valid @RequestBody CreateUserRequest request) {
-        User user = userService.registerUser(request, UserRole.ADMIN);
-        return ResponseEntity.status(201).body(UserResponse.of(user));
-    }
-
-    @Operation(summary = "Editar el perfil del usuario autenticado",
-            description = "Permite al usuario autenticado actualizar su username y email.")
+    @Operation(summary = "Obtener un usuario por ID",
+            description = "Devuelve la información básica de un usuario por su ID, accesible para administradores o el propio usuario.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Perfil actualizado con éxito",
+                    description = "Usuario encontrado con éxito",
                     content = {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = UserResponse.class),
@@ -164,8 +204,8 @@ public class UserController {
                                             @ExampleObject(
                                                     value = """
                                                     {
-                                                        "id": "550e8400-e29b-41d4-a716-446655440000",
-                                                        "username": "juanperez_nuevo",
+                                                        "id": "550e8400-e29b-41d4-a716-446655440001",
+                                                        "username": "user1",
                                                         "token": null,
                                                         "refreshToken": null
                                                     }
@@ -173,18 +213,21 @@ public class UserController {
                                             )
                                     })
                     }),
-            @ApiResponse(responseCode = "400",
-                    description = "Datos inválidos o ya en uso",
-                    content = @Content),
             @ApiResponse(responseCode = "401",
                     description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere ser administrador o el propio usuario",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Usuario no encontrado",
                     content = @Content)
     })
-    @PutMapping("/profile")
-    public ResponseEntity<UserResponse> editUserProfile(
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<UserResponse> getUserById(
             @AuthenticationPrincipal User currentUser,
-            @Valid @RequestBody EditUserRequest request) {
-        User updatedUser = userService.editUserProfile(currentUser, request);
-        return ResponseEntity.ok(UserResponse.of(updatedUser));
+            @PathVariable UUID id) {
+        User user = userService.getUserById(currentUser, id);
+        return ResponseEntity.ok(UserResponse.of(user));
     }
 }

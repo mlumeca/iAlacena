@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -96,6 +97,19 @@ public class UserService {
             throw new AccessDeniedException("Only administrators can access the list of users");
         }
         return userRepository.findAll(pageable);
+    }
+
+    public User getUserById(User currentUser, UUID id) {
+        boolean isAdmin = currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        boolean isSelf = currentUser.getId().equals(id);
+
+        if (!isAdmin && !isSelf) {
+            throw new AccessDeniedException("You can only access your own profile or must be an administrator");
+        }
+
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
     private String generateRandomActivationCode() {
