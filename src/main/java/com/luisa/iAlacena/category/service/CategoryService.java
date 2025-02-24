@@ -44,16 +44,12 @@ public class CategoryService {
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
             throw new AccessDeniedException("Only administrators can edit categories");
         }
-
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + id));
-
         if (!request.name().equals(category.getName()) && categoryRepository.existsByName(request.name())) {
             throw new IllegalArgumentException("Category with name '" + request.name() + "' already exists");
         }
-
         category.setName(request.name());
-
         if (request.parentCategoryId() != null) {
             Category newParent = categoryRepository.findById(request.parentCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("Parent category not found with id: " + request.parentCategoryId()));
@@ -61,11 +57,15 @@ public class CategoryService {
         } else {
             category.setParentCategory(null);
         }
-
         return categoryRepository.save(category);
     }
 
     public Page<Category> getAllCategories(Pageable pageable) {
         return categoryRepository.findAll(pageable);
+    }
+
+    public Category getCategoryById(Long id) {
+        return categoryRepository.findByIdWithChildren(id)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + id));
     }
 }

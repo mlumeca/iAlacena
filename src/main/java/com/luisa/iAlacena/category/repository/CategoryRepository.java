@@ -37,4 +37,12 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             FROM Category c
             """)
     Page<Category> findAll(Pageable pageable);
+
+    @Query("""
+            SELECT c
+            FROM Category c
+            LEFT JOIN FETCH c.childCategories
+            WHERE c.id = :id
+            """)
+    Optional<Category> findByIdWithChildren(@Param("id") Long id);
 }
