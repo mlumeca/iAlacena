@@ -1,9 +1,6 @@
 package com.luisa.iAlacena.category.controller;
 
-import com.luisa.iAlacena.category.dto.CreateCategoryRequest;
-import com.luisa.iAlacena.category.dto.EditCategoryRequest;
-import com.luisa.iAlacena.category.dto.CategoryResponse;
-import com.luisa.iAlacena.category.dto.ListCategoryResponse;
+import com.luisa.iAlacena.category.dto.*;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.service.CategoryService;
 import com.luisa.iAlacena.user.model.User;
@@ -157,5 +154,50 @@ public class CategoryController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Category> categoryPage = categoryService.getAllCategories(pageable);
         return ResponseEntity.ok(ListCategoryResponse.of(categoryPage));
+    }
+
+    @Operation(summary = "Obtener detalles de una categoría específica",
+            description = "Permite a un usuario registrado ver los detalles de una categoría, incluyendo subcategorías.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Categoría encontrada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = CategoryDetailResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Carnes",
+                                                        "parentCategoryId": null,
+                                                        "childCategories": [
+                                                            {
+                                                                "id": 2,
+                                                                "name": "Carnes Rojas",
+                                                                "parentCategoryId": 1
+                                                            },
+                                                            {
+                                                                "id": 3,
+                                                                "name": "Carnes Blancas",
+                                                                "parentCategoryId": 1
+                                                            }
+                                                        ]
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Categoría no encontrada",
+                    content = @Content)
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryDetailResponse> getCategoryById(@PathVariable Long id) {
+        Category category = categoryService.getCategoryById(id);
+        return ResponseEntity.ok(CategoryDetailResponse.of(category));
     }
 }
