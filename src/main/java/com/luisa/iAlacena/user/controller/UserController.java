@@ -175,6 +175,30 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Eliminar la foto de perfil del usuario",
+            description = "Permite al usuario autenticado eliminar su foto de perfil.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Foto de perfil eliminada con éxito",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propietario puede eliminar su foto",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content)
+    })
+    @DeleteMapping("/{id}/profile-picture")
+    public ResponseEntity<Void> deleteProfilePicture(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable UUID id) {
+        userService.deleteProfilePicture(currentUser, id);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Obtener todos los usuarios registrados",
             description = "Devuelve una lista paginada de usuarios, accesible solo para administradores.")
     @ApiResponses(value = {

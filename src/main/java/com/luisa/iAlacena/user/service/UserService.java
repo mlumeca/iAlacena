@@ -125,8 +125,31 @@ public class UserService {
         return response;
     }
 
+    public void deleteProfilePicture(User currentUser, UUID id) {
+        if (!currentUser.getId().equals(id)) {
+            throw new AccessDeniedException("You can only delete your own profile picture");
+        }
+
+        User managedUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        String currentAvatar = managedUser.getAvatar();
+        if (currentAvatar != null && !currentAvatar.isEmpty()) {
+            String filename = currentAvatar.substring(currentAvatar.lastIndexOf("/") + 1);
+            try {
+                storageService.deleteFile(filename);
+                log.info("Deleted profile picture: {}", filename);
+            } catch (Exception e) {
+                log.warn("Could not delete profile picture: {}", filename, e);
+            }
+        }
+
+        managedUser.setAvatar(null);
+        userRepository.save(managedUser);
+    }
+
     private FileResponse uploadFile(MultipartFile file) {
-        FileMetadata fileMetadata = storageService.store(file);
+        var fileMetadata = storageService.store(file);
         String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/download/")
                 .path(fileMetadata.getId())
