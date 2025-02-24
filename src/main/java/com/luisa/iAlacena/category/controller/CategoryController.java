@@ -1,6 +1,7 @@
 package com.luisa.iAlacena.category.controller;
 
 import com.luisa.iAlacena.category.dto.CreateCategoryRequest;
+import com.luisa.iAlacena.category.dto.EditCategoryRequest;
 import com.luisa.iAlacena.category.dto.CategoryResponse;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.service.CategoryService;
@@ -64,5 +65,47 @@ public class CategoryController {
             @Valid @RequestBody CreateCategoryRequest request) {
         Category category = categoryService.createCategory(currentUser, request);
         return ResponseEntity.status(201).body(CategoryResponse.of(category));
+    }
+
+    @Operation(summary = "Editar una categoría existente",
+            description = "Permite a un administrador actualizar el nombre o la relación de una categoría.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Categoría editada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = CategoryResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Carnes Rojas",
+                                                        "parentCategoryId": null
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o nombre duplicado",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere rol ADMIN",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Categoría no encontrada",
+                    content = @Content)
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryResponse> editCategory(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long id,
+            @Valid @RequestBody EditCategoryRequest request) {
+        Category category = categoryService.editCategory(currentUser, id, request);
+        return ResponseEntity.ok(CategoryResponse.of(category));
     }
 }
