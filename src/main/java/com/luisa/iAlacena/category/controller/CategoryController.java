@@ -3,6 +3,7 @@ package com.luisa.iAlacena.category.controller;
 import com.luisa.iAlacena.category.dto.CreateCategoryRequest;
 import com.luisa.iAlacena.category.dto.EditCategoryRequest;
 import com.luisa.iAlacena.category.dto.CategoryResponse;
+import com.luisa.iAlacena.category.dto.ListCategoryResponse;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.service.CategoryService;
 import com.luisa.iAlacena.user.model.User;
@@ -14,6 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -107,5 +111,51 @@ public class CategoryController {
             @Valid @RequestBody EditCategoryRequest request) {
         Category category = categoryService.editCategory(currentUser, id, request);
         return ResponseEntity.ok(CategoryResponse.of(category));
+    }
+
+    @Operation(summary = "Listar todas las categorías",
+            description = "Permite a un usuario registrado ver todas las categorías disponibles con estructura jerárquica.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Lista de categorías obtenida con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ListCategoryResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "totalElements": 3,
+                                                        "totalPages": 2,
+                                                        "pageNumber": 0,
+                                                        "pageSize": 2,
+                                                        "items": [
+                                                            {
+                                                                "id": 1,
+                                                                "name": "Carnes",
+                                                                "parentCategoryId": null
+                                                            },
+                                                            {
+                                                                "id": 2,
+                                                                "name": "Pollo",
+                                                                "parentCategoryId": 1
+                                                            }
+                                                        ]
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content)
+    })
+    @GetMapping
+    public ResponseEntity<ListCategoryResponse> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Category> categoryPage = categoryService.getAllCategories(pageable);
+        return ResponseEntity.ok(ListCategoryResponse.of(categoryPage));
     }
 }
