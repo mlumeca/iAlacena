@@ -2,6 +2,9 @@ package com.luisa.iAlacena.user.service;
 
 import com.luisa.iAlacena.error.PasswordMismatchException;
 import com.luisa.iAlacena.error.UserAlreadyExistsException;
+import com.luisa.iAlacena.storage.dto.FileResponse;
+import com.luisa.iAlacena.storage.model.FileMetadata;
+import com.luisa.iAlacena.storage.service.StorageService;
 import com.luisa.iAlacena.user.dto.CreateUserRequest;
 import com.luisa.iAlacena.user.dto.EditUserRequest;
 import com.luisa.iAlacena.user.model.User;
@@ -16,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
@@ -30,14 +35,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SendGridMailSender mailSender;
+    private final StorageService storageService;
 
     @Value("${activation.duration:60}")
     private int activationDuration;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SendGridMailSender mailSender) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SendGridMailSender mailSender, StorageService storageService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender;
+        this.storageService = storageService;
     }
 
     public User registerUser(CreateUserRequest request) {
@@ -89,6 +96,51 @@ public class UserService {
         currentUser.setEmail(request.email());
 
         return userRepository.save(currentUser);
+    }
+
+    public FileResponse updateProfilePicture(User currentUser, UUID id, MultipartFile file) {
+        if (!currentUser.getId().equals(id)) {
+            throw new AccessDeniedException("You can only update your own profile picture");
+        }
+
+        User managedUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        String currentAvatar = managedUser.getAvatar();
+        if (currentAvatar != null && !currentAvatar.isEmpty()) {
+            String filename = currentAvatar.substring(currentAvatar.lastIndexOf("/") + 1);
+            try {
+                storageService.deleteFile(filename);
+                log.info("Deleted previous avatar: {}", filename);
+            } catch (Exception e) {
+                log.warn("Could not delete previous avatar: {}", filename, e);
+            }
+        }
+
+        FileResponse response = uploadFile(file);
+
+        managedUser.setAvatar(response.uri());
+        userRepository.save(managedUser);
+
+        return response;
+    }
+
+    private FileResponse uploadFile(MultipartFile file) {
+        FileMetadata fileMetadata = storageService.store(file);
+        String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/download/")
+                .path(fileMetadata.getId())
+                .toUriString();
+
+        fileMetadata.setURL(uri);
+
+        return FileResponse.builder()
+                .id(fileMetadata.getId())
+                .name(fileMetadata.getFilename())
+                .size(file.getSize())
+                .type(file.getContentType())
+                .uri(uri)
+                .build();
     }
 
     public Page<User> getAllUsers(User currentUser, Pageable pageable) {

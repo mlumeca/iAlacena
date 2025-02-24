@@ -11,13 +11,27 @@ public record UserResponse(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         String token,
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        String refreshToken
+        String refreshToken,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        String avatar
 ) {
     public static UserResponse of(User user) {
-        return new UserResponse(user.getId(), user.getUsername(), null, null);
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                null,
+                null,
+                user.getAvatar()
+        );
     }
 
     public static UserResponse of(User user, String token, String refreshToken) {
-        return new UserResponse(user.getId(), user.getUsername(), token, refreshToken);
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                token,
+                refreshToken,
+                user.getAvatar()
+        );
     }
 }
