@@ -142,57 +142,6 @@ public class RecipeController {
         return ResponseEntity.ok(ListRecipeResponse.of(recipePage));
     }
 
-    @Operation(summary = "Asignar categorías a una receta",
-            description = "Permite a un usuario autenticado asignar múltiples categorías a una receta existente.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Categorías asignadas con éxito",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = RecipeResponse.class),
-                                    examples = {
-                                            @ExampleObject(
-                                                    value = """
-                                                    {
-                                                        "id": 1,
-                                                        "name": "Pollo al Curry",
-                                                        "description": "Un delicioso plato de pollo con curry y arroz.",
-                                                        "portions": 4,
-                                                        "createdAt": "2025-02-25T10:00:00",
-                                                        "updatedAt": "2025-02-25T10:00:00",
-                                                        "imgUrl": "http://example.com/pollo-curry.jpg",
-                                                        "ingredients": [
-                                                            {"id": 1, "name": "Pollo", "quantity": 1, "unitOfMeasure": "KILO"},
-                                                            {"id": 2, "name": "Curry", "quantity": 1, "unitOfMeasure": "UNIDAD"}
-                                                        ],
-                                                        "categories": [
-                                                            {"id": 1, "name": "Carnes"},
-                                                            {"id": 2, "name": "Carbohidratos"}
-                                                        ],
-                                                        "userId": "550e8400-e29b-41d4-a716-446655440001"
-                                                    }
-                                                    """
-                                            )
-                                    })
-                    }),
-            @ApiResponse(responseCode = "400",
-                    description = "Datos inválidos o categorías no encontradas",
-                    content = @Content),
-            @ApiResponse(responseCode = "401",
-                    description = "No autenticado",
-                    content = @Content),
-            @ApiResponse(responseCode = "404",
-                    description = "Receta no encontrada",
-                    content = @Content)
-    })
-    @PutMapping("/{id}/categories")
-    public ResponseEntity<RecipeResponse> assignCategories(
-            @PathVariable Long id,
-            @Valid @RequestBody AssignCategoriesRequest request) {
-        Recipe recipe = recipeService.assignCategories(id, request);
-        return ResponseEntity.ok(RecipeResponse.of(recipe));
-    }
-
     @Operation(summary = "Obtener detalles de una receta específica",
             description = "Permite a un usuario registrado ver todos los detalles de una receta, incluyendo ingredientes.")
     @ApiResponses(value = {

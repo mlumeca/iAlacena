@@ -4,13 +4,16 @@ import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
 import com.luisa.iAlacena.ingredient.dto.CreateIngredientRequest;
+import com.luisa.iAlacena.ingredient.dto.EditIngredientRequest;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.user.model.User;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class IngredientService {
@@ -46,12 +49,39 @@ public class IngredientService {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
 
-        List<Category> categories = categoryRepository.findAllById(request.categoryIds());
+        Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.categoryIds())); // Changed to Set
         if (categories.size() != request.categoryIds().size()) {
             throw new IllegalArgumentException("One or more category IDs do not exist");
         }
 
         ingredient.setCategories(categories);
+        return ingredientRepository.save(ingredient);
+    }
+
+    public Ingredient editIngredient(User currentUser, Long id, EditIngredientRequest request) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can edit ingredients");
+        }
+
+        Ingredient ingredient = ingredientRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
+
+        // Check for duplicate name (excluding the current ingredient)
+        if (!request.name().equals(ingredient.getName()) && ingredientRepository.existsByName(request.name())) {
+            throw new IllegalArgumentException("Ingredient with name '" + request.name() + "' already exists");
+        }
+
+        // Update fields
+        ingredient.setName(request.name());
+        if (request.categoryIds() != null) {
+            Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.categoryIds()));
+            if (categories.size() != request.categoryIds().size()) {
+                throw new IllegalArgumentException("One or more category IDs do not exist");
+            }
+            ingredient.setCategories(categories);
+        }
+
         return ingredientRepository.save(ingredient);
     }
 }
