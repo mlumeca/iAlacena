@@ -65,12 +65,40 @@ public class FavoritesController {
             @AuthenticationPrincipal User currentUser,
             @PathVariable("user_id") UUID userId,
             @Valid @RequestBody AddFavoriteRequest request) {
-        // Ensure the authenticated user is the one modifying their own favorites
         if (!currentUser.getId().equals(userId)) {
             throw new IllegalArgumentException("You can only add recipes to your own favorites list");
         }
 
         FavoritesResponse favorite = favoritesService.addRecipeToFavorites(userId, request);
         return ResponseEntity.status(201).body(favorite);
+    }
+
+    @Operation(summary = "Eliminar una receta de favoritos",
+            description = "Permite a un usuario registrado eliminar una receta de su lista de favoritos.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Receta eliminada de favoritos con éxito",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Usuario, receta o relación no encontrada",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propio usuario puede eliminar de sus favoritos",
+                    content = @Content)
+    })
+    @DeleteMapping("/{user_id}/favorites/{recipe_id}")
+    public ResponseEntity<Void> removeRecipeFromFavorites(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId,
+            @PathVariable("recipe_id") Long recipeId) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only remove recipes from your own favorites list");
+        }
+
+        favoritesService.removeRecipeFromFavorites(userId, recipeId);
+        return ResponseEntity.noContent().build();
     }
 }

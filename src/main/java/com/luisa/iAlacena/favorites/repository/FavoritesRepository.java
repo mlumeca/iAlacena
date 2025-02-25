@@ -2,6 +2,20 @@ package com.luisa.iAlacena.favorites.repository;
 
 import com.luisa.iAlacena.favorites.model.Favorites;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
+
+    @Query("""
+            SELECT f
+            FROM Favorites f
+            WHERE f.user.id = :userId AND f.recipe.id = :recipeId
+            """)
+    Optional<Favorites> findByUserIdAndRecipeId(@Param("userId") UUID userId, @Param("recipeId") Long recipeId);
+
+    void deleteByUserIdAndRecipeId(@Param("userId") UUID userId, @Param("recipeId") Long recipeId);
 }
