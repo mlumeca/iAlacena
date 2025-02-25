@@ -42,4 +42,17 @@ public class FavoritesService {
         Favorites savedFavorite = favoritesRepository.save(favorite);
         return FavoritesResponse.of(savedFavorite);
     }
+
+    @Transactional
+    public void removeRecipeFromFavorites(UUID userId, Long recipeId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + recipeId));
+
+        Favorites favorite = favoritesRepository.findByUserIdAndRecipeId(userId, recipeId)
+                .orElseThrow(() -> new IllegalArgumentException("Favorite entry not found for user " + userId + " and recipe " + recipeId));
+        favoritesRepository.delete(favorite);
+    }
 }

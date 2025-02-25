@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/recipe/{id}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/recipe/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/{user_id}/favorites").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/user/{user_id}/favorites/{recipe_id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/ingredient/create").authenticated()
                         .requestMatchers(HttpMethod.GET, "/ingredient").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/ingredient/{id}").hasRole("ADMIN")
