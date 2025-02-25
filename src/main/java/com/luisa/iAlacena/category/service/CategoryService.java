@@ -1,22 +1,29 @@
 package com.luisa.iAlacena.category.service;
 
+import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.category.dto.CreateCategoryRequest;
 import com.luisa.iAlacena.category.dto.EditCategoryRequest;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
+import com.luisa.iAlacena.ingredient.model.Ingredient;
+import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final IngredientRepository ingredientRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, IngredientRepository ingredientRepository) {
         this.categoryRepository = categoryRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     public Category createCategory(User currentUser, CreateCategoryRequest request) {
@@ -67,5 +74,18 @@ public class CategoryService {
     public Category getCategoryById(Long id) {
         return categoryRepository.findByIdWithChildren(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + id));
+    }
+
+    public Ingredient assignCategories(Long id, AssignCategoriesRequest request) {
+        Ingredient ingredient = ingredientRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
+
+        List<Category> categories = categoryRepository.findAllById(request.categoryIds());
+        if (categories.size() != request.categoryIds().size()) {
+            throw new IllegalArgumentException("One or more category IDs do not exist");
+        }
+
+        ingredient.setCategories(categories);
+        return ingredientRepository.save(ingredient);
     }
 }

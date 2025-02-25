@@ -3,6 +3,9 @@ package com.luisa.iAlacena.category.controller;
 import com.luisa.iAlacena.category.dto.*;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.service.CategoryService;
+import com.luisa.iAlacena.ingredient.dto.IngredientResponse;
+import com.luisa.iAlacena.ingredient.model.Ingredient;
+import com.luisa.iAlacena.ingredient.service.IngredientService;
 import com.luisa.iAlacena.user.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,9 +28,11 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final IngredientService ingredientService;
 
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, IngredientService ingredientService) {
         this.categoryService = categoryService;
+        this.ingredientService = ingredientService;
     }
 
     @Operation(summary = "Creación de una nueva categoría",
@@ -199,5 +204,44 @@ public class CategoryController {
     public ResponseEntity<CategoryDetailResponse> getCategoryById(@PathVariable Long id) {
         Category category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(CategoryDetailResponse.of(category));
+    }
+
+    @Operation(summary = "Asignar categorías a un ingrediente",
+            description = "Permite a un usuario autenticado asignar múltiples categorías a un ingrediente existente.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Categorías asignadas con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = IngredientResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Pollo",
+                                                        "quantity": 1,
+                                                        "unitOfMeasure": "KILO"
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o categorías no encontradas",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Ingrediente no encontrado",
+                    content = @Content)
+    })
+    @PutMapping("/{id}/categories")
+    public ResponseEntity<IngredientResponse> assignCategories(
+            @PathVariable Long id,
+            @Valid @RequestBody AssignCategoriesRequest request) {
+        Ingredient ingredient = ingredientService.assignCategories(id, request);
+        return ResponseEntity.ok(IngredientResponse.of(ingredient));
     }
 }

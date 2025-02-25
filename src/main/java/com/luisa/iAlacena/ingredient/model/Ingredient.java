@@ -1,9 +1,12 @@
 package com.luisa.iAlacena.ingredient.model;
 
+import com.luisa.iAlacena.category.model.Category;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -30,6 +33,15 @@ public class Ingredient {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UnitOfMeasure unitOfMeasure;
+
+    @ManyToMany
+    @JoinTable(
+            name = "ingredient_category",
+            joinColumns = @JoinColumn(name = "ingredient_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    @Builder.Default
+    private List<Category> categories = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {
