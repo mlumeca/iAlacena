@@ -1,10 +1,13 @@
 package com.luisa.iAlacena.shoppingcart.model;
 
 import com.luisa.iAlacena.user.model.User;
+import com.luisa.iAlacena.ingredient.model.Ingredient;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -30,8 +33,22 @@ public class ShoppingCart {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @ElementCollection
+    @CollectionTable(
+            name = "shopping_cart_item",
+            joinColumns = @JoinColumn(name = "shopping_cart_id")
+    )
+    @MapKeyJoinColumn(name = "ingredient_id")
+    @Column(name = "quantity")
+    @Builder.Default
+    private Map<Ingredient, Integer> items = new HashMap<>();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void addIngredient(Ingredient ingredient) {
+        items.merge(ingredient, 1, Integer::sum);
     }
 }
