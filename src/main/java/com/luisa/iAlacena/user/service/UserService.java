@@ -10,6 +10,8 @@ import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.repository.UserRepository;
 import com.luisa.iAlacena.util.SendGridMailSender;
+import com.luisa.iAlacena.shoppingcart.model.ShoppingCart;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +53,7 @@ public class UserService {
         return registerUser(request, UserRole.USER);
     }
 
+    @Transactional
     public User registerUser(CreateUserRequest request, UserRole defaultRole) {
         if (userRepository.existsByEmailOrUsername(request.email(), request.username())) {
             throw new UserAlreadyExistsException("user.exists");
@@ -65,7 +68,10 @@ public class UserService {
                 .password(passwordEncoder.encode(request.password()))
                 .role(defaultRole)
                 .activationToken(generateRandomActivationCode())
+                .shoppingCart(new ShoppingCart())
                 .build();
+
+        user.getShoppingCart().setUser(user);
 
         user = userRepository.save(user);
 
@@ -211,7 +217,7 @@ public class UserService {
         user.setResetPasswordTokenExpiry(LocalDateTime.now().plus(24, ChronoUnit.HOURS));
         userRepository.save(user);
 
-        String resetLink = "http://localhost:8080/user/reset-password?token=" + token; // Cambiado de "/users/" a "/user/"
+        String resetLink = "http://localhost:8080/user/reset-password?token=" + token;
         String message = "Haz clic en el siguiente enlace para restablecer tu contraseña: " + resetLink +
                 "\nEste enlace es válido por 24 horas.";
         try {

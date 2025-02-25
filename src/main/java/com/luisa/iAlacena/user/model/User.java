@@ -3,6 +3,7 @@ package com.luisa.iAlacena.user.model;
 import com.luisa.iAlacena.favorites.model.Favorites;
 import com.luisa.iAlacena.inventory.model.Inventory;
 import com.luisa.iAlacena.recipe.model.Recipe;
+import com.luisa.iAlacena.shoppingcart.model.ShoppingCart;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -89,10 +90,22 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Inventory> inventory = new ArrayList<>();
 
+    @OneToOne(
+            mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @Builder.Default
+    private ShoppingCart shoppingCart = new ShoppingCart();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.isVerified = false;
+        if (this.shoppingCart != null) {
+            this.shoppingCart.setUser(this);
+        }
     }
 
     @Override
@@ -178,8 +191,12 @@ public class User implements UserDetails {
         this.getInventory().remove(i);
         i.setUser(null);
     }
+
+    // Helper for ShoppingCart
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
+        if (shoppingCart != null) {
+            shoppingCart.setUser(this);
+        }
+    }
 }
-    /*
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ShoppingCart shoppingCart;
-    */
