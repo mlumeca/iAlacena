@@ -2,6 +2,7 @@ package com.luisa.iAlacena.recipe.controller;
 
 import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.recipe.dto.CreateRecipeRequest;
+import com.luisa.iAlacena.recipe.dto.EditRecipeRequest;
 import com.luisa.iAlacena.recipe.dto.ListRecipeResponse;
 import com.luisa.iAlacena.recipe.dto.RecipeResponse;
 import com.luisa.iAlacena.recipe.model.Recipe;
@@ -236,5 +237,60 @@ public class RecipeController {
     public ResponseEntity<RecipeResponse> getRecipeById(@PathVariable Long id) {
         Recipe recipe = recipeService.getRecipeById(id);
         return ResponseEntity.ok(RecipeResponse.of(recipe));
+    }
+
+    @Operation(summary = "Editar una receta existente",
+            description = "Permite al creador de la receta actualizar sus detalles, como nombre, descripción, porciones, imagen, categorías o ingredientes.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Receta actualizada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = RecipeResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Pollo al Curry Mejorado",
+                                                        "description": "Un plato aún más sabroso con curry, arroz y especias.",
+                                                        "portions": 5,
+                                                        "createdAt": "2025-02-25T10:00:00",
+                                                        "updatedAt": "2025-02-25T12:00:00",
+                                                        "imgUrl": "http://example.com/pollo-curry-v2.jpg",
+                                                        "ingredients": [
+                                                            {"id": 1, "name": "Pollo", "quantity": 1, "unitOfMeasure": "KILO"},
+                                                            {"id": 3, "name": "Arroz", "quantity": 2, "unitOfMeasure": "KILO"}
+                                                        ],
+                                                        "categories": [
+                                                            {"id": 1, "name": "Carnes"},
+                                                            {"id": 2, "name": "Carbohidratos"}
+                                                        ],
+                                                        "userId": "550e8400-e29b-41d4-a716-446655440001"
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o IDs de categorías/ingredientes no encontrados",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el creador puede editar la receta",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Receta no encontrada",
+                    content = @Content)
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<RecipeResponse> editRecipe(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long id,
+            @Valid @RequestBody EditRecipeRequest request) {
+        Recipe updatedRecipe = recipeService.editRecipe(currentUser, id, request);
+        return ResponseEntity.ok(RecipeResponse.of(updatedRecipe));
     }
 }

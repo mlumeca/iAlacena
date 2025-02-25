@@ -3,7 +3,10 @@ package com.luisa.iAlacena.recipe.service;
 import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
+import com.luisa.iAlacena.ingredient.model.Ingredient;
+import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.recipe.dto.CreateRecipeRequest;
+import com.luisa.iAlacena.recipe.dto.EditRecipeRequest;
 import com.luisa.iAlacena.recipe.model.Recipe;
 import com.luisa.iAlacena.recipe.repository.RecipeRepository;
 import com.luisa.iAlacena.user.model.User;
@@ -21,10 +24,12 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final CategoryRepository categoryRepository;
+    private final IngredientRepository ingredientRepository;
 
-    public RecipeService(RecipeRepository recipeRepository, CategoryRepository categoryRepository) {
+    public RecipeService(RecipeRepository recipeRepository, CategoryRepository categoryRepository, IngredientRepository ingredientRepository) {
         this.recipeRepository = recipeRepository;
         this.categoryRepository = categoryRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     public Recipe createRecipe(User currentUser, CreateRecipeRequest request) {
@@ -79,5 +84,43 @@ public class RecipeService {
     public Recipe getRecipeById(Long id) {
         return recipeRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
+    }
+
+    public Recipe editRecipe(User currentUser, Long id, EditRecipeRequest request) {
+        Recipe recipe = recipeRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
+
+        if (!recipe.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("Only the creator can edit this recipe");
+        }
+
+        if (request.name() != null) {
+            recipe.setName(request.name());
+        }
+        if (request.description() != null) {
+            recipe.setDescription(request.description());
+        }
+        if (request.portions() != null) {
+            recipe.setPortions(request.portions());
+        }
+        if (request.imgUrl() != null) {
+            recipe.setImgUrl(request.imgUrl());
+        }
+        if (request.categoryIds() != null) {
+            Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.categoryIds()));
+            if (categories.size() != request.categoryIds().size()) {
+                throw new IllegalArgumentException("One or more category IDs do not exist");
+            }
+            recipe.setCategories(categories);
+        }
+        if (request.ingredientIds() != null) {
+            Set<Ingredient> ingredients = new HashSet<>(ingredientRepository.findAllById(request.ingredientIds()));
+            if (ingredients.size() != request.ingredientIds().size()) {
+                throw new IllegalArgumentException("One or more ingredient IDs do not exist");
+            }
+            recipe.setIngredients(ingredients);
+        }
+
+        return recipeRepository.save(recipe);
     }
 }
