@@ -44,4 +44,27 @@ public class ShoppingCartService {
 
         return ShoppingCartResponse.of(updatedCart);
     }
+
+    @Transactional
+    public ShoppingCartResponse removeIngredientFromCart(UUID userId, Long ingredientId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        Ingredient ingredient = ingredientRepository.findById(ingredientId)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + ingredientId));
+
+        ShoppingCart cart = user.getShoppingCart();
+        if (cart == null) {
+            throw new IllegalStateException("Shopping cart not initialized for user " + userId);
+        }
+
+        if (!cart.getItems().containsKey(ingredient)) {
+            throw new IllegalArgumentException("Ingredient " + ingredientId + " not found in shopping cart for user " + userId);
+        }
+
+        cart.removeIngredient(ingredient);
+        ShoppingCart updatedCart = shoppingCartRepository.save(cart);
+
+        return ShoppingCartResponse.of(updatedCart);
+    }
 }
