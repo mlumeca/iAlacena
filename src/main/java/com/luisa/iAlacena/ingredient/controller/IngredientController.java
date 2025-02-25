@@ -182,4 +182,47 @@ public class IngredientController {
         Page<Ingredient> ingredientPage = ingredientService.getAllIngredients(currentUser, pageable, name, categoryId);
         return ResponseEntity.ok(ListIngredientResponse.of(ingredientPage));
     }
+
+    @Operation(summary = "Obtener detalles de un ingrediente específico",
+            description = "Permite a un administrador ver todos los detalles de un ingrediente, incluyendo sus categorías.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Ingrediente encontrado con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = IngredientResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Pollo",
+                                                        "quantity": 1,
+                                                        "unitOfMeasure": "KILO",
+                                                        "categories": [
+                                                            {"id": 1, "name": "Carnes"},
+                                                            {"id": 2, "name": "Proteínas"}
+                                                        ]
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere rol ADMIN",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Ingrediente no encontrado",
+                    content = @Content)
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<IngredientResponse> getIngredientById(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long id) {
+        Ingredient ingredient = ingredientService.getIngredientById(currentUser, id);
+        return ResponseEntity.ok(IngredientResponse.of(ingredient));
+    }
 }

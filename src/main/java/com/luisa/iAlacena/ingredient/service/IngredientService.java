@@ -101,4 +101,14 @@ public class IngredientService {
             return ingredientRepository.findAllWithCategories(pageable);
         }
     }
+
+    public Ingredient getIngredientById(User currentUser, Long id) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can view ingredient details");
+        }
+
+        return ingredientRepository.findByIdWithCategories(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
+    }
 }
