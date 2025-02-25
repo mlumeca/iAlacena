@@ -246,4 +246,30 @@ public class UserService {
         log.info("Password changed successfully for user: {}", currentUser.getUsername());
         return updatedUser;
     }
+
+    public User updateUserRole(User currentUser, UUID id, UpdateRoleRequest request) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can update user roles");
+        }
+
+        User targetUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        if (currentUser.getId().equals(targetUser.getId()) && request.role() == UserRole.USER) {
+            long adminCount = userRepository.findAll().stream()
+                    .filter(u -> u.getRole() == UserRole.ADMIN)
+                    .count();
+            if (adminCount <= 1) {
+                throw new IllegalArgumentException("Cannot demote the last administrator");
+            }
+        }
+
+        targetUser.setRole(request.role());
+        User updatedUser = userRepository.save(targetUser);
+
+        log.info("Role updated for user {} from {} to {} by admin {}",
+                targetUser.getUsername(), targetUser.getRole(), request.role(), currentUser.getUsername());
+        return updatedUser;
+    }
 }
