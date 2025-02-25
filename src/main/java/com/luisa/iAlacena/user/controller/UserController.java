@@ -330,4 +330,41 @@ public class UserController {
         userService.resetPassword(request);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Cambiar la contraseña del usuario autenticado",
+            description = "Permite al usuario autenticado cambiar su contraseña tras verificar la contraseña actual.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Contraseña cambiada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                                                        "username": "juanperez",
+                                                        "token": null,
+                                                        "refreshToken": null,
+                                                        "avatar": null
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o contraseña antigua incorrecta",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content)
+    })
+    @PutMapping("/change-password")
+    public ResponseEntity<UserResponse> changePassword(
+            @AuthenticationPrincipal User currentUser,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        User updatedUser = userService.changePassword(currentUser, request);
+        return ResponseEntity.ok(UserResponse.of(updatedUser));
+    }
 }

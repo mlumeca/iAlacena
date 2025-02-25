@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/user/profile/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/recipe/create").authenticated()
                         .requestMatchers(HttpMethod.GET, "/recipe").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/recipe/{id}/categories").authenticated() // Added for PUT /recipe/{id}/categories
+                        .requestMatchers(HttpMethod.PUT, "/recipe/{id}/categories").authenticated()
                         .requestMatchers(HttpMethod.POST, "/ingredient/create").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/ingredient/{id}/categories").authenticated()
                         .requestMatchers(HttpMethod.POST, "/category/create").authenticated()
@@ -79,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/category/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/category/*/subcategory").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/*/profile-picture").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/user/change-password").authenticated() // Added for PUT /user/change-password
                         .requestMatchers(HttpMethod.PUT, "/category/*/parent").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/category/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/user/*/profile-picture").authenticated()
