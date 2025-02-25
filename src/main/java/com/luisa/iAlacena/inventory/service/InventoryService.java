@@ -4,6 +4,7 @@ import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.inventory.dto.AddInventoryRequest;
 import com.luisa.iAlacena.inventory.dto.InventoryResponse;
+import com.luisa.iAlacena.inventory.dto.UpdateInventoryRequest;
 import com.luisa.iAlacena.inventory.model.Inventory;
 import com.luisa.iAlacena.inventory.repository.InventoryRepository;
 import com.luisa.iAlacena.user.model.User;
@@ -53,5 +54,18 @@ public class InventoryService {
 
         Page<Inventory> inventoryPage = inventoryRepository.findByUserId(userId, pageable);
         return inventoryPage.map(InventoryResponse::of);
+    }
+
+    @Transactional
+    public InventoryResponse updateIngredientQuantity(UUID userId, Long ingredientId, UpdateInventoryRequest request) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        Inventory inventory = inventoryRepository.findByUserIdAndIngredientId(userId, ingredientId)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient " + ingredientId + " not found in inventory for user " + userId));
+
+        inventory.setQuantity(request.quantity());
+        Inventory updatedInventory = inventoryRepository.save(inventory);
+        return InventoryResponse.of(updatedInventory);
     }
 }

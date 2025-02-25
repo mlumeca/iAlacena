@@ -77,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/user/{user_id}/favorites").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/{user_id}/inventory").authenticated()
                         .requestMatchers(HttpMethod.GET, "/user/{user_id}/inventory").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/user/{user_id}/inventory/{ingredient_id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/ingredient/create").authenticated()
                         .requestMatchers(HttpMethod.GET, "/ingredient").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/ingredient/{id}").hasRole("ADMIN")
