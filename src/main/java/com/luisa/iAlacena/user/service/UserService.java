@@ -5,10 +5,7 @@ import com.luisa.iAlacena.error.UserAlreadyExistsException;
 import com.luisa.iAlacena.storage.dto.FileResponse;
 import com.luisa.iAlacena.storage.model.FileMetadata;
 import com.luisa.iAlacena.storage.service.StorageService;
-import com.luisa.iAlacena.user.dto.CreateUserRequest;
-import com.luisa.iAlacena.user.dto.EditUserRequest;
-import com.luisa.iAlacena.user.dto.ForgotPasswordRequest;
-import com.luisa.iAlacena.user.dto.ResetPasswordRequest;
+import com.luisa.iAlacena.user.dto.*;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.model.UserRole;
 import com.luisa.iAlacena.user.repository.UserRepository;
@@ -237,5 +234,16 @@ public class UserService {
         userRepository.save(user);
 
         log.info("Password reset successfully for user: {}", user.getUsername());
+    }
+
+    public User changePassword(User currentUser, ChangePasswordRequest request) {
+        if (!passwordEncoder.matches(request.oldPassword(), currentUser.getPassword())) {
+            throw new PasswordMismatchException("oldPassword.incorrect");
+        }
+        currentUser.setPassword(passwordEncoder.encode(request.newPassword()));
+        User updatedUser = userRepository.save(currentUser);
+
+        log.info("Password changed successfully for user: {}", currentUser.getUsername());
+        return updatedUser;
     }
 }
