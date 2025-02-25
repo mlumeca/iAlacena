@@ -9,6 +9,8 @@ import com.luisa.iAlacena.recipe.repository.RecipeRepository;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -54,5 +56,14 @@ public class FavoritesService {
         Favorites favorite = favoritesRepository.findByUserIdAndRecipeId(userId, recipeId)
                 .orElseThrow(() -> new IllegalArgumentException("Favorite entry not found for user " + userId + " and recipe " + recipeId));
         favoritesRepository.delete(favorite);
+    }
+
+    @Transactional
+    public Page<FavoritesResponse> getAllFavorites(UUID userId, Pageable pageable) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        Page<Favorites> favoritesPage = favoritesRepository.findByUserId(userId, pageable);
+        return favoritesPage.map(FavoritesResponse::of);
     }
 }

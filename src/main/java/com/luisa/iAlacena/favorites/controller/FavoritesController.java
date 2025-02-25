@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -100,5 +103,72 @@ public class FavoritesController {
 
         favoritesService.removeRecipeFromFavorites(userId, recipeId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Listar todas las recetas favoritas",
+            description = "Permite a un usuario registrado ver su lista de recetas favoritas con paginación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Lista de recetas favoritas obtenida con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Page.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "content": [
+                                                            {
+                                                                "id": 1,
+                                                                "userId": "550e8400-e29b-41d4-a716-446655440001",
+                                                                "recipeId": 1,
+                                                                "addedAt": "2025-02-25T10:00:00"
+                                                            },
+                                                            {
+                                                                "id": 2,
+                                                                "userId": "550e8400-e29b-41d4-a716-446655440001",
+                                                                "recipeId": 2,
+                                                                "addedAt": "2025-02-25T11:00:00"
+                                                            }
+                                                        ],
+                                                        "pageable": {
+                                                            "pageNumber": 0,
+                                                            "pageSize": 10,
+                                                            "offset": 0,
+                                                            "paged": true,
+                                                            "unpaged": false
+                                                        },
+                                                        "totalElements": 2,
+                                                        "totalPages": 1,
+                                                        "size": 10,
+                                                        "number": 0
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Usuario no encontrado",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propio usuario puede ver sus favoritos",
+                    content = @Content)
+    })
+    @GetMapping("/{user_id}/favorites")
+    public ResponseEntity<Page<FavoritesResponse>> getAllFavorites(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only view your own favorites list");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FavoritesResponse> favoritesPage = favoritesService.getAllFavorites(userId, pageable);
+        return ResponseEntity.ok(favoritesPage);
     }
 }
