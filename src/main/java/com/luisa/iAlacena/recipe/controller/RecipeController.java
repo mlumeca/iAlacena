@@ -1,5 +1,6 @@
 package com.luisa.iAlacena.recipe.controller;
 
+import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.recipe.dto.CreateRecipeRequest;
 import com.luisa.iAlacena.recipe.dto.ListRecipeResponse;
 import com.luisa.iAlacena.recipe.dto.RecipeResponse;
@@ -135,5 +136,49 @@ public class RecipeController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Recipe> recipePage = recipeService.getAllRecipes(currentUser, pageable, name, categoryId);
         return ResponseEntity.ok(ListRecipeResponse.of(recipePage));
+    }
+
+    @Operation(summary = "Asignar categorías a una receta",
+            description = "Permite a un usuario autenticado asignar múltiples categorías a una receta existente.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Categorías asignadas con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = RecipeResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Pollo al Curry",
+                                                        "description": "Un delicioso plato de pollo con curry y arroz.",
+                                                        "portions": 4,
+                                                        "categories": [
+                                                            {"id": 1, "name": "Carnes"},
+                                                            {"id": 2, "name": "Carbohidratos"}
+                                                        ],
+                                                        "userId": "550e8400-e29b-41d4-a716-446655440001"
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o categorías no encontradas",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Receta no encontrada",
+                    content = @Content)
+    })
+    @PutMapping("/{id}/categories")
+    public ResponseEntity<RecipeResponse> assignCategories(
+            @PathVariable Long id,
+            @Valid @RequestBody AssignCategoriesRequest request) {
+        Recipe recipe = recipeService.assignCategories(id, request);
+        return ResponseEntity.ok(RecipeResponse.of(recipe));
     }
 }
