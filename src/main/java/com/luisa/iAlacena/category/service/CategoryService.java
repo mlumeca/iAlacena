@@ -2,12 +2,14 @@ package com.luisa.iAlacena.category.service;
 
 import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.category.dto.CreateCategoryRequest;
+import com.luisa.iAlacena.category.dto.CreateSubcategoryRequest;
 import com.luisa.iAlacena.category.dto.EditCategoryRequest;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.user.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -87,5 +89,29 @@ public class CategoryService {
 
         ingredient.setCategories(categories);
         return ingredientRepository.save(ingredient);
+    }
+
+    @Transactional
+    public Category createSubcategory(User currentUser, Long parentId, CreateSubcategoryRequest request) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can create subcategories");
+        }
+
+        if (categoryRepository.existsByName(request.name())) {
+            throw new IllegalArgumentException("Category with name '" + request.name() + "' already exists");
+        }
+
+        Category parentCategory = categoryRepository.findById(parentId)
+                .orElseThrow(() -> new IllegalArgumentException("Parent category not found with id: " + parentId));
+
+        Category subcategory = Category.builder()
+                .name(request.name())
+                .parentCategory(parentCategory)
+                .build();
+
+        parentCategory.getChildCategories().add(subcategory);
+
+        return categoryRepository.save(subcategory);
     }
 }

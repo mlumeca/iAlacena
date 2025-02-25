@@ -244,4 +244,46 @@ public class CategoryController {
         Ingredient ingredient = ingredientService.assignCategories(id, request);
         return ResponseEntity.ok(IngredientResponse.of(ingredient));
     }
+
+    @Operation(summary = "Crear una subcategoría dentro de una categoría existente",
+            description = "Permite a un administrador crear una nueva subcategoría bajo una categoría padre especificada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Subcategoría creada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = CategoryResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 12,
+                                                        "name": "Pollo",
+                                                        "parentCategoryId": 1
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o nombre duplicado",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere rol ADMIN",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Categoría padre no encontrada",
+                    content = @Content)
+    })
+    @PostMapping("/{parentId}/subcategory")
+    public ResponseEntity<CategoryResponse> createSubcategory(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long parentId,
+            @Valid @RequestBody CreateSubcategoryRequest request) {
+        Category subcategory = categoryService.createSubcategory(currentUser, parentId, request);
+        return ResponseEntity.status(201).body(CategoryResponse.of(subcategory));
+    }
 }
