@@ -51,4 +51,16 @@ public class ShoppingCart {
     public void addIngredient(Ingredient ingredient) {
         items.merge(ingredient, 1, Integer::sum);
     }
+
+    public void removeIngredient(Ingredient ingredient) {
+        Integer currentQuantity = items.get(ingredient);
+        if (currentQuantity != null) {
+            int newQuantity = currentQuantity - 1;
+            if (newQuantity <= 0) {
+                items.remove(ingredient);
+            } else {
+                items.put(ingredient, newQuantity);
+            }
+        }
+    }
 }

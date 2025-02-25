@@ -77,4 +77,53 @@ public class ShoppingCartController {
         ShoppingCartResponse response = shoppingCartService.addIngredientToCart(userId, request);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "Eliminar un ingrediente del carrito de compra",
+            description = "Permite a un usuario registrado eliminar un ingrediente de su carrito de compra. Reduce la cantidad en 1; si la cantidad llega a 0 o menos, elimina el ingrediente del carrito.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Ingrediente eliminado o cantidad reducida con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ShoppingCartResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "userId": "550e8400-e29b-41d4-a716-446655440001",
+                                                        "createdAt": "2025-02-25T10:00:00",
+                                                        "items": [
+                                                            {
+                                                                "ingredientId": 1,
+                                                                "quantity": 1
+                                                            }
+                                                        ]
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Usuario o ingrediente no encontrado en el carrito",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propio usuario puede modificar su carrito",
+                    content = @Content)
+    })
+    @DeleteMapping("/{user_id}/shopping-cart/{ingredient_id}")
+    public ResponseEntity<ShoppingCartResponse> removeIngredientFromCart(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId,
+            @PathVariable("ingredient_id") Long ingredientId) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only remove ingredients from your own shopping cart");
+        }
+
+        ShoppingCartResponse response = shoppingCartService.removeIngredientFromCart(userId, ingredientId);
+        return ResponseEntity.ok(response);
+    }
 }
