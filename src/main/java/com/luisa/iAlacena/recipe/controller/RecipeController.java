@@ -49,6 +49,13 @@ public class RecipeController {
                                                         "name": "Pollo al Curry",
                                                         "description": "Un delicioso plato de pollo con curry y arroz.",
                                                         "portions": 4,
+                                                        "createdAt": "2025-02-25T10:00:00",
+                                                        "updatedAt": "2025-02-25T10:00:00",
+                                                        "imgUrl": "http://example.com/pollo-curry.jpg",
+                                                        "ingredients": [
+                                                            {"id": 1, "name": "Pollo", "quantity": 1, "unitOfMeasure": "KILO"},
+                                                            {"id": 2, "name": "Curry", "quantity": 1, "unitOfMeasure": "UNIDAD"}
+                                                        ],
                                                         "categories": [
                                                             {"id": 1, "name": "Carnes"},
                                                             {"id": 2, "name": "Carbohidratos"}
@@ -96,22 +103,18 @@ public class RecipeController {
                                                                 "name": "Pollo al Curry",
                                                                 "description": "Un delicioso plato de pollo con curry y arroz.",
                                                                 "portions": 4,
+                                                                "createdAt": "2025-02-25T10:00:00",
+                                                                "updatedAt": "2025-02-25T10:00:00",
+                                                                "imgUrl": "http://example.com/pollo-curry.jpg",
+                                                                "ingredients": [
+                                                                    {"id": 1, "name": "Pollo", "quantity": 1, "unitOfMeasure": "KILO"},
+                                                                    {"id": 2, "name": "Curry", "quantity": 1, "unitOfMeasure": "UNIDAD"}
+                                                                ],
                                                                 "categories": [
                                                                     {"id": 1, "name": "Carnes"},
                                                                     {"id": 2, "name": "Carbohidratos"}
                                                                 ],
                                                                 "userId": "550e8400-e29b-41d4-a716-446655440001"
-                                                            },
-                                                            {
-                                                                "id": 2,
-                                                                "name": "Ensalada César",
-                                                                "description": "Ensalada fresca con pollo y aderezo César.",
-                                                                "portions": 2,
-                                                                "categories": [
-                                                                    {"id": 1, "name": "Carnes"},
-                                                                    {"id": 3, "name": "Vegetariana"}
-                                                                ],
-                                                                "userId": "550e8400-e29b-41d4-a716-446655440002"
                                                             }
                                                         ]
                                                     }
@@ -154,6 +157,13 @@ public class RecipeController {
                                                         "name": "Pollo al Curry",
                                                         "description": "Un delicioso plato de pollo con curry y arroz.",
                                                         "portions": 4,
+                                                        "createdAt": "2025-02-25T10:00:00",
+                                                        "updatedAt": "2025-02-25T10:00:00",
+                                                        "imgUrl": "http://example.com/pollo-curry.jpg",
+                                                        "ingredients": [
+                                                            {"id": 1, "name": "Pollo", "quantity": 1, "unitOfMeasure": "KILO"},
+                                                            {"id": 2, "name": "Curry", "quantity": 1, "unitOfMeasure": "UNIDAD"}
+                                                        ],
                                                         "categories": [
                                                             {"id": 1, "name": "Carnes"},
                                                             {"id": 2, "name": "Carbohidratos"}
@@ -179,6 +189,52 @@ public class RecipeController {
             @PathVariable Long id,
             @Valid @RequestBody AssignCategoriesRequest request) {
         Recipe recipe = recipeService.assignCategories(id, request);
+        return ResponseEntity.ok(RecipeResponse.of(recipe));
+    }
+
+    @Operation(summary = "Obtener detalles de una receta específica",
+            description = "Permite a un usuario registrado ver todos los detalles de una receta, incluyendo ingredientes.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Receta encontrada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = RecipeResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Pollo al Curry",
+                                                        "description": "Un delicioso plato de pollo con curry y arroz.",
+                                                        "portions": 4,
+                                                        "createdAt": "2025-02-25T10:00:00",
+                                                        "updatedAt": "2025-02-25T10:00:00",
+                                                        "imgUrl": "http://example.com/pollo-curry.jpg",
+                                                        "ingredients": [
+                                                            {"id": 1, "name": "Pollo", "quantity": 1, "unitOfMeasure": "KILO"},
+                                                            {"id": 2, "name": "Curry", "quantity": 1, "unitOfMeasure": "UNIDAD"}
+                                                        ],
+                                                        "categories": [
+                                                            {"id": 1, "name": "Carnes"},
+                                                            {"id": 2, "name": "Carbohidratos"}
+                                                        ],
+                                                        "userId": "550e8400-e29b-41d4-a716-446655440001"
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Receta no encontrada",
+                    content = @Content)
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<RecipeResponse> getRecipeById(@PathVariable Long id) {
+        Recipe recipe = recipeService.getRecipeById(id);
         return ResponseEntity.ok(RecipeResponse.of(recipe));
     }
 }

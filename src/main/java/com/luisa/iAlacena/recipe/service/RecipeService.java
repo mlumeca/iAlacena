@@ -12,7 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RecipeService {
@@ -26,9 +28,9 @@ public class RecipeService {
     }
 
     public Recipe createRecipe(User currentUser, CreateRecipeRequest request) {
-        List<Category> categories = request.categoryIds() != null && !request.categoryIds().isEmpty()
-                ? categoryRepository.findAllById(request.categoryIds())
-                : List.of();
+        Set<Category> categories = request.categoryIds() != null && !request.categoryIds().isEmpty()
+                ? new HashSet<>(categoryRepository.findAllById(request.categoryIds())) // Convert List to Set
+                : Set.of(); // Empty Set if no categories
 
         if (request.categoryIds() != null && categories.size() != request.categoryIds().size()) {
             throw new IllegalArgumentException("One or more category IDs do not exist");
@@ -65,12 +67,17 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
 
-        List<Category> categories = categoryRepository.findAllById(request.categoryIds());
+        Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.categoryIds())); // Convert List to Set
         if (categories.size() != request.categoryIds().size()) {
             throw new IllegalArgumentException("One or more category IDs do not exist");
         }
 
-        recipe.setCategories(categories);
+        recipe.setCategories(categories); // Now compatible with Set<Category>
         return recipeRepository.save(recipe);
+    }
+
+    public Recipe getRecipeById(Long id) {
+        return recipeRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
     }
 }

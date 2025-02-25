@@ -1,13 +1,12 @@
 package com.luisa.iAlacena.ingredient.model;
 
 import com.luisa.iAlacena.category.model.Category;
+import com.luisa.iAlacena.recipe.model.Recipe;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 
@@ -42,6 +41,10 @@ public class Ingredient {
     )
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "ingredients")
+    @Builder.Default
+    private Set<Recipe> recipes = new HashSet<>();
 
     @Override
     public final boolean equals(Object o) {
