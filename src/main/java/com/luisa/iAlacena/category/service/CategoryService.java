@@ -5,6 +5,8 @@ import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
+import com.luisa.iAlacena.recipe.model.Recipe;
+import com.luisa.iAlacena.recipe.repository.RecipeRepository;
 import com.luisa.iAlacena.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -12,17 +14,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final IngredientRepository ingredientRepository;
+    private final RecipeRepository recipeRepository;
 
-    public CategoryService(CategoryRepository categoryRepository, IngredientRepository ingredientRepository) {
+    public CategoryService(CategoryRepository categoryRepository, IngredientRepository ingredientRepository, RecipeRepository recipeRepository) {
         this.categoryRepository = categoryRepository;
         this.ingredientRepository = ingredientRepository;
+        this.recipeRepository = recipeRepository;
     }
 
     public Category createCategory(User currentUser, CreateCategoryRequest request) {
@@ -150,5 +157,47 @@ public class CategoryService {
             current = current.getParentCategory();
         }
         return false;
+    }
+
+    @Transactional
+    public void deleteCategory(User currentUser, Long id) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can delete categories");
+        }
+
+        Category category = categoryRepository.findByIdWithChildren(id)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + id));
+
+        List<Category> subcategories = category.getChildCategories();
+        for (Category subcategory : subcategories) {
+            subcategory.setParentCategory(null);
+            categoryRepository.save(subcategory);
+        }
+        category.getChildCategories().clear();
+
+        Category parent = category.getParentCategory();
+        if (parent != null) {
+            parent.getChildCategories().remove(category);
+            categoryRepository.save(parent);
+        }
+
+        Set<Category> categoriesToRemove = new HashSet<>();
+        categoriesToRemove.add(category);
+        List<Ingredient> ingredients = ingredientRepository.findAll();
+        for (Ingredient ingredient : ingredients) {
+            if (ingredient.getCategories().removeAll(categoriesToRemove)) {
+                ingredientRepository.save(ingredient);
+            }
+        }
+
+        List<Recipe> recipes = recipeRepository.findAll();
+        for (Recipe recipe : recipes) {
+            if (recipe.getCategories().removeAll(categoriesToRemove)) {
+                recipeRepository.save(recipe);
+            }
+        }
+
+        categoryRepository.delete(category);
     }
 }

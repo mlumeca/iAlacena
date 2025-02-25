@@ -319,4 +319,28 @@ public class CategoryController {
         Category category = categoryService.reassignParentCategory(currentUser, categoryId, request);
         return ResponseEntity.ok(CategoryResponse.of(category));
     }
+
+    @Operation(summary = "Eliminar una categoría existente",
+            description = "Permite a un administrador eliminar una categoría. Las subcategorías asociadas quedarán sin categoría padre, y la categoría se eliminará de ingredientes y recetas sin afectar categorías padre.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Categoría eliminada con éxito",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere rol ADMIN",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Categoría no encontrada",
+                    content = @Content)
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long id) {
+        categoryService.deleteCategory(currentUser, id);
+        return ResponseEntity.noContent().build();
+    }
 }
