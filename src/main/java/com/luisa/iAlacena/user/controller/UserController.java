@@ -367,4 +367,48 @@ public class UserController {
         User updatedUser = userService.changePassword(currentUser, request);
         return ResponseEntity.ok(UserResponse.of(updatedUser));
     }
+
+    @Operation(summary = "Actualizar el rol de un usuario",
+            description = "Permite a un administrador cambiar el rol de un usuario (USER a ADMIN o viceversa).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Rol actualizado con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": "550e8400-e29b-41d4-a716-446655440001",
+                                                        "username": "juanperez",
+                                                        "token": null,
+                                                        "refreshToken": null,
+                                                        "avatar": null
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Datos inválidos o intento de demover al último administrador",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere rol ADMIN",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content)
+    })
+    @PutMapping("/{id}/role")
+    public ResponseEntity<UserResponse> updateUserRole(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateRoleRequest request) {
+        User updatedUser = userService.updateUserRole(currentUser, id, request);
+        return ResponseEntity.ok(UserResponse.of(updatedUser));
+    }
 }
