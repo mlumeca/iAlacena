@@ -2,6 +2,7 @@ package com.luisa.iAlacena.inventory.controller;
 
 import com.luisa.iAlacena.inventory.dto.AddInventoryRequest;
 import com.luisa.iAlacena.inventory.dto.InventoryResponse;
+import com.luisa.iAlacena.inventory.dto.UpdateInventoryRequest;
 import com.luisa.iAlacena.inventory.service.InventoryService;
 import com.luisa.iAlacena.user.model.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -145,5 +146,51 @@ public class InventoryController {
         Pageable pageable = PageRequest.of(page, size);
         Page<InventoryResponse> inventoryPage = inventoryService.getAllInventoryItems(userId, pageable);
         return ResponseEntity.ok(inventoryPage);
+    }
+
+    @Operation(summary = "Actualizar la cantidad de un ingrediente en el inventario",
+            description = "Permite a un usuario registrado actualizar la cantidad de un ingrediente en su inventario.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Cantidad actualizada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = InventoryResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "userId": "550e8400-e29b-41d4-a716-446655440001",
+                                                        "ingredientId": 1,
+                                                        "quantity": 2,
+                                                        "addedAt": "2025-02-25T10:00:00"
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Usuario o ingrediente no encontrado en el inventario",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propio usuario puede actualizar su inventario",
+                    content = @Content)
+    })
+    @PutMapping("/{user_id}/inventory/{ingredient_id}")
+    public ResponseEntity<InventoryResponse> updateIngredientQuantity(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId,
+            @PathVariable("ingredient_id") Long ingredientId,
+            @Valid @RequestBody UpdateInventoryRequest request) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only update your own inventory");
+        }
+
+        InventoryResponse updatedInventory = inventoryService.updateIngredientQuantity(userId, ingredientId, request);
+        return ResponseEntity.ok(updatedInventory);
     }
 }

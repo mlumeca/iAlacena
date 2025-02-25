@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
@@ -18,4 +19,11 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             WHERE i.user.id = :userId
             """)
     Page<Inventory> findByUserId(@Param("userId") UUID userId, Pageable pageable);
+
+    @Query("""
+            SELECT i
+            FROM Inventory i
+            WHERE i.user.id = :userId AND i.ingredient.id = :ingredientId
+            """)
+    Optional<Inventory> findByUserIdAndIngredientId(@Param("userId") UUID userId, @Param("ingredientId") Long ingredientId);
 }
