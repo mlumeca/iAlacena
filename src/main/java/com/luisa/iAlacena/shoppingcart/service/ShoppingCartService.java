@@ -8,9 +8,13 @@ import com.luisa.iAlacena.shoppingcart.model.ShoppingCart;
 import com.luisa.iAlacena.shoppingcart.repository.ShoppingCartRepository;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -57,14 +61,24 @@ public class ShoppingCartService {
         if (cart == null) {
             throw new IllegalStateException("Shopping cart not initialized for user " + userId);
         }
-
         if (!cart.getItems().containsKey(ingredient)) {
             throw new IllegalArgumentException("Ingredient " + ingredientId + " not found in shopping cart for user " + userId);
         }
-
         cart.removeIngredient(ingredient);
         ShoppingCart updatedCart = shoppingCartRepository.save(cart);
 
         return ShoppingCartResponse.of(updatedCart);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ShoppingCartResponse> getCartContents(UUID userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        ShoppingCart cart = user.getShoppingCart();
+        if (cart == null) {
+            throw new IllegalStateException("Shopping cart not initialized for user " + userId);
+        }
+        List<ShoppingCartResponse> content = List.of(ShoppingCartResponse.of(cart));
+        return new PageImpl<>(content, pageable, content.size());
     }
 }
