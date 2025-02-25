@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
@@ -57,4 +58,14 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
             @Param("categoryId") Long categoryId,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT r
+            FROM Recipe r
+            LEFT JOIN FETCH r.user
+            LEFT JOIN FETCH r.categories
+            LEFT JOIN FETCH r.ingredients
+            WHERE r.id = :id
+            """)
+    Optional<Recipe> findByIdWithDetails(@Param("id") Long id);
 }

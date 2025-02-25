@@ -1,14 +1,14 @@
 package com.luisa.iAlacena.recipe.model;
 
 import com.luisa.iAlacena.category.model.Category;
+import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
 @Getter
@@ -32,12 +32,23 @@ public class Recipe {
     @Column(nullable = false)
     private int portions;
 
-    /*
-    @ElementCollection
-    @CollectionTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id"))
-    @Column(name = "ingredient")
-    private List<String> ingredients = new ArrayList<>();
-     */
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Column
+    private String imgUrl;
+
+    @ManyToMany
+    @JoinTable(
+            name = "recipe_ingredient",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+    )
+    @Builder.Default
+    private Set<Ingredient> ingredients = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -46,13 +57,22 @@ public class Recipe {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     @Builder.Default
-    private List<Category> categories = new ArrayList<>();
+    private Set<Category> categories = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "user_id",
-            nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     @Override
     public final boolean equals(Object o) {
