@@ -1,9 +1,6 @@
 package com.luisa.iAlacena.category.service;
 
-import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
-import com.luisa.iAlacena.category.dto.CreateCategoryRequest;
-import com.luisa.iAlacena.category.dto.CreateSubcategoryRequest;
-import com.luisa.iAlacena.category.dto.EditCategoryRequest;
+import com.luisa.iAlacena.category.dto.*;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
@@ -113,5 +110,45 @@ public class CategoryService {
         parentCategory.getChildCategories().add(subcategory);
 
         return categoryRepository.save(subcategory);
+    }
+
+    @Transactional
+    public Category reassignParentCategory(User currentUser, Long categoryId, ReassignParentRequest request) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can reassign parent categories");
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + categoryId));
+
+        Category newParent = categoryRepository.findById(request.parentId())
+                .orElseThrow(() -> new IllegalArgumentException("Parent category not found with id: " + request.parentId()));
+
+        if (createsCycle(category, newParent)) {
+            throw new IllegalArgumentException("Reassigning '" + newParent.getName() + "' as parent of '" + category.getName() + "' would create a cycle");
+        }
+
+        Category oldParent = category.getParentCategory();
+        if (oldParent != null) {
+            oldParent.getChildCategories().remove(category);
+            categoryRepository.save(oldParent);
+        }
+
+        category.setParentCategory(newParent);
+        newParent.getChildCategories().add(category);
+
+        return categoryRepository.save(category);
+    }
+    
+    private boolean createsCycle(Category category, Category potentialParent) {
+        Category current = potentialParent;
+        while (current != null) {
+            if (current.equals(category)) {
+                return true;
+            }
+            current = current.getParentCategory();
+        }
+        return false;
     }
 }
