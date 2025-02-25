@@ -61,16 +61,18 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(auth -> auth
+                        // Rutas públicas
                         .requestMatchers(HttpMethod.POST, "/user/register", "/user/register-admin", "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/activate").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/forgot-password", "/user/reset-password").permitAll()
+                        // Rutas autenticadas
                         .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/user/profile").authenticated()
                         .requestMatchers(HttpMethod.GET, "/user/all").authenticated()
                         .requestMatchers(HttpMethod.GET, "/user/profile/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/recipe/create").authenticated()
                         .requestMatchers(HttpMethod.POST, "/ingredient/create").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/ingredient/*/categories").authenticated() // Nuevo endpoint
+                        .requestMatchers(HttpMethod.PUT, "/ingredient/{id}/categories").authenticated() // Especificamos explícitamente
                         .requestMatchers(HttpMethod.POST, "/category/create").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/category/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/category").authenticated()
