@@ -4,10 +4,10 @@ import com.luisa.iAlacena.recipe.dto.CreateRecipeRequest;
 import com.luisa.iAlacena.recipe.model.Recipe;
 import com.luisa.iAlacena.recipe.repository.RecipeRepository;
 import com.luisa.iAlacena.user.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class RecipeService {
@@ -23,30 +23,25 @@ public class RecipeService {
                 .name(request.name())
                 .description(request.description())
                 .portions(request.portions())
-                //.ingredients(request.ingredients())
-                //.categories(calculateCategories(request.ingredients()))
                 .user(currentUser)
                 .build();
         return recipeRepository.save(recipe);
     }
 
-    /*
-    private List<String> calculateCategories(List<String> ingredients) {
-        List<String> categories = new ArrayList<>();
-        if (ingredients.stream().anyMatch(i -> i.toLowerCase().contains("carne") || i.toLowerCase().contains("pollo"))) {
-            categories.add("Carnes");
+    public Page<Recipe> getAllRecipes(User currentUser, Pageable pageable, String name, Long categoryId) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can view all recipes");
         }
-        if (ingredients.stream().anyMatch(i -> i.toLowerCase().contains("pescado") || i.toLowerCase().contains("marisco"))) {
-            categories.add("Pescados");
-        }
-        if (ingredients.stream().anyMatch(i -> i.toLowerCase().contains("arroz") || i.toLowerCase().contains("pasta"))) {
-            categories.add("Carbohidratos");
-        }
-        if (ingredients.stream().anyMatch(i -> i.toLowerCase().contains("verdura") || i.toLowerCase().contains("fruta"))) {
-            categories.add("Vegetariana");
-        }
-        return categories.isEmpty() ? List.of("General") : categories;
-    }
 
-     */
+        if (name != null && !name.isEmpty() && categoryId != null) {
+            return recipeRepository.findByNameContainingIgnoreCaseAndCategoryId(name, categoryId, pageable);
+        } else if (name != null && !name.isEmpty()) {
+            return recipeRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else if (categoryId != null) {
+            return recipeRepository.findByCategoryId(categoryId, pageable);
+        } else {
+            return recipeRepository.findAllWithUserAndCategories(pageable);
+        }
+    }
 }

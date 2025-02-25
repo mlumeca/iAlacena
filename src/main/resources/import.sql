@@ -21,3 +21,54 @@ INSERT INTO category (id, name, parent_category_id) VALUES
                                                         (9, 'Frutas', 7),
                                                         (10, 'Lácteos', NULL),
                                                         (11, 'Quesos', 10);
+-- Inserción de 10 ingredientes
+INSERT INTO ingredient (id, name, quantity, unit_of_measure) VALUES
+(1, 'Pollo', 1, 'KILO'),
+(2, 'Arroz', 1, 'KILO'),
+(3, 'Tomate', 1, 'UNIDAD'),
+(4, 'Cebolla', 1, 'UNIDAD'),
+(5, 'Pasta', 1, 'KILO'),
+(6, 'Queso', 1, 'GRAMO'),
+(7, 'Lechuga', 1, 'UNIDAD'),
+(8, 'Aceite de oliva', 1, 'LITRO'),
+(9, 'Pescado', 1, 'KILO'),
+(10, 'Patata', 1, 'KILO');
+
+-- Vinculación de ingredientes a categorías (asumiendo categorías con id 1=Carnes, 2=Carbohidratos, 3=Vegetariana)
+INSERT INTO ingredient_category (ingredient_id, category_id) VALUES
+(1, 1),  -- Pollo -> Carnes
+(2, 2),  -- Arroz -> Carbohidratos
+(3, 3),  -- Tomate -> Vegetariana
+(4, 3),  -- Cebolla -> Vegetariana
+(5, 2),  -- Pasta -> Carbohidratos
+(6, 2),  -- Queso -> Carbohidratos (podría ser otra categoría, pero simplifico)
+(7, 3),  -- Lechuga -> Vegetariana
+(8, 3),  -- Aceite de oliva -> Vegetariana (podría ser otra categoría)
+(9, 1),  -- Pescado -> Carnes
+(10, 2); -- Patata -> Carbohidratos
+
+-- Inserción de 10 recetas (asignadas al usuario con id '550e8400-e29b-41d4-a716-446655440001')
+INSERT INTO recipe (id, name, description, portions, user_id) VALUES
+(1, 'Pollo al Curry', 'Un delicioso plato de pollo con curry y arroz.', 4, '550e8400-e29b-41d4-a716-446655440001'),
+(2, 'Ensalada César', 'Ensalada fresca con pollo y aderezo César.', 2, '550e8400-e29b-41d4-a716-446655440001'),
+(3, 'Pasta con Tomate', 'Pasta sencilla con salsa de tomate casera.', 3, '550e8400-e29b-41d4-a716-446655440001'),
+(4, 'Pescado al Horno', 'Pescado asado con patatas y aceite de oliva.', 2, '550e8400-e29b-41d4-a716-446655440001'),
+(5, 'Arroz con Verduras', 'Arroz salteado con verduras frescas.', 4, '550e8400-e29b-41d4-a716-446655440001'),
+(6, 'Sopa de Cebolla', 'Sopa caliente con cebolla y queso gratinado.', 3, '550e8400-e29b-41d4-a716-446655440001'),
+(7, 'Patatas Fritas', 'Patatas crujientes fritas en aceite de oliva.', 2, '550e8400-e29b-41d4-a716-446655440001'),
+(8, 'Ensalada Verde', 'Ensalada ligera con lechuga y tomate.', 1, '550e8400-e29b-41d4-a716-446655440001'),
+(9, 'Pollo Asado', 'Pollo jugoso asado con especias.', 4, '550e8400-e29b-41d4-a716-446655440001'),
+(10, 'Pasta con Queso', 'Pasta cremosa con queso fundido.', 3, '550e8400-e29b-41d4-a716-446655440001');
+
+-- Vinculación de recetas a categorías
+INSERT INTO recipe_category (recipe_id, category_id) VALUES
+(1, 1), (1, 2),  -- Pollo al Curry -> Carnes, Carbohidratos
+(2, 1), (2, 3),  -- Ensalada César -> Carnes, Vegetariana
+(3, 2), (3, 3),  -- Pasta con Tomate -> Carbohidratos, Vegetariana
+(4, 1), (4, 2),  -- Pescado al Horno -> Carnes, Carbohidratos
+(5, 2), (5, 3),  -- Arroz con Verduras -> Carbohidratos, Vegetariana
+(6, 3), (6, 2),  -- Sopa de Cebolla -> Vegetariana, Carbohidratos (por el queso)
+(7, 2),          -- Patatas Fritas -> Carbohidratos
+(8, 3),          -- Ensalada Verde -> Vegetariana
+(9, 1),          -- Pollo Asado -> Carnes
+(10, 2);         -- Pasta con Queso -> Carbohidratos

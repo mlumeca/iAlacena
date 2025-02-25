@@ -1,6 +1,7 @@
 package com.luisa.iAlacena.recipe.controller;
 
 import com.luisa.iAlacena.recipe.dto.CreateRecipeRequest;
+import com.luisa.iAlacena.recipe.dto.ListRecipeResponse;
 import com.luisa.iAlacena.recipe.dto.RecipeResponse;
 import com.luisa.iAlacena.recipe.model.Recipe;
 import com.luisa.iAlacena.recipe.service.RecipeService;
@@ -13,6 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +48,10 @@ public class RecipeController {
                                                         "name": "Pollo al Curry",
                                                         "description": "Un delicioso plato de pollo con curry y arroz.",
                                                         "portions": 4,
-                                                        "ingredients": ["pollo", "curry", "arroz", "cebolla"],
-                                                        "categories": ["Carnes", "Carbohidratos"],
+                                                        "categories": [
+                                                            {"id": 1, "name": "Carnes"},
+                                                            {"id": 2, "name": "Carbohidratos"}
+                                                        ],
                                                         "userId": "550e8400-e29b-41d4-a716-446655440001"
                                                     }
                                                     """
@@ -65,5 +71,69 @@ public class RecipeController {
             @Valid @RequestBody CreateRecipeRequest request) {
         Recipe recipe = recipeService.createRecipe(currentUser, request);
         return ResponseEntity.status(201).body(RecipeResponse.of(recipe));
+    }
+
+    @Operation(summary = "Listar todas las recetas",
+            description = "Permite a un administrador ver todas las recetas disponibles con filtros y paginación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Lista de recetas obtenida con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ListRecipeResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "totalElements": 2,
+                                                        "totalPages": 1,
+                                                        "pageNumber": 0,
+                                                        "pageSize": 10,
+                                                        "items": [
+                                                            {
+                                                                "id": 1,
+                                                                "name": "Pollo al Curry",
+                                                                "description": "Un delicioso plato de pollo con curry y arroz.",
+                                                                "portions": 4,
+                                                                "categories": [
+                                                                    {"id": 1, "name": "Carnes"},
+                                                                    {"id": 2, "name": "Carbohidratos"}
+                                                                ],
+                                                                "userId": "550e8400-e29b-41d4-a716-446655440001"
+                                                            },
+                                                            {
+                                                                "id": 2,
+                                                                "name": "Ensalada César",
+                                                                "description": "Ensalada fresca con pollo y aderezo César.",
+                                                                "portions": 2,
+                                                                "categories": [
+                                                                    {"id": 1, "name": "Carnes"},
+                                                                    {"id": 3, "name": "Vegetariana"}
+                                                                ],
+                                                                "userId": "550e8400-e29b-41d4-a716-446655440002"
+                                                            }
+                                                        ]
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere rol ADMIN",
+                    content = @Content)
+    })
+    @GetMapping
+    public ResponseEntity<ListRecipeResponse> getAllRecipes(
+            @AuthenticationPrincipal User currentUser,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Recipe> recipePage = recipeService.getAllRecipes(currentUser, pageable, name, categoryId);
+        return ResponseEntity.ok(ListRecipeResponse.of(recipePage));
     }
 }
