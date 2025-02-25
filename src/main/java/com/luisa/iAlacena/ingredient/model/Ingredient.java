@@ -40,7 +40,7 @@ public class Ingredient {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     @Builder.Default
-    private List<Category> categories = new ArrayList<>();
+    private Set<Category> categories = new HashSet<>();
 
     @ManyToMany(mappedBy = "ingredients")
     @Builder.Default

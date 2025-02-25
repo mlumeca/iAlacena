@@ -86,7 +86,7 @@ public class CategoryService {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
 
-        List<Category> categories = categoryRepository.findAllById(request.categoryIds());
+        Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.categoryIds()));
         if (categories.size() != request.categoryIds().size()) {
             throw new IllegalArgumentException("One or more category IDs do not exist");
         }

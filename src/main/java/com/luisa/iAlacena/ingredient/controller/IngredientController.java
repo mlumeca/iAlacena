@@ -2,6 +2,7 @@ package com.luisa.iAlacena.ingredient.controller;
 
 import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.ingredient.dto.CreateIngredientRequest;
+import com.luisa.iAlacena.ingredient.dto.EditIngredientRequest;
 import com.luisa.iAlacena.ingredient.dto.IngredientResponse;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.service.IngredientService;
@@ -71,11 +72,11 @@ public class IngredientController {
         return ResponseEntity.status(201).body(IngredientResponse.of(ingredient));
     }
 
-    @Operation(summary = "Asignar categorías a un ingrediente",
-            description = "Permite a un usuario autenticado asignar múltiples categorías a un ingrediente existente.")
+    @Operation(summary = "Editar un ingrediente existente",
+            description = "Permite a un administrador actualizar el nombre o las categorías de un ingrediente existente. La cantidad no puede modificarse en este endpoint.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Categorías asignadas con éxito",
+                    description = "Ingrediente actualizado con éxito",
                     content = {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = IngredientResponse.class),
@@ -84,30 +85,37 @@ public class IngredientController {
                                                     value = """
                                                     {
                                                         "id": 1,
-                                                        "name": "Pollo",
+                                                        "name": "Pollo Fresco",
                                                         "quantity": 1,
-                                                        "unitOfMeasure": "KILO"
+                                                        "unitOfMeasure": "KILO",
+                                                        "categories": [
+                                                            {"id": 1, "name": "Carnes"},
+                                                            {"id": 2, "name": "Proteínas"}
+                                                        ]
                                                     }
                                                     """
                                             )
                                     })
                     }),
             @ApiResponse(responseCode = "400",
-                    description = "Datos inválidos o categorías no encontradas",
+                    description = "Datos inválidos, nombre duplicado o categorías no encontradas",
                     content = @Content),
             @ApiResponse(responseCode = "401",
                     description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Requiere rol ADMIN",
                     content = @Content),
             @ApiResponse(responseCode = "404",
                     description = "Ingrediente no encontrado",
                     content = @Content)
     })
-    @PutMapping("/{id}/categories")
-    public ResponseEntity<IngredientResponse> assignCategories(
+    @PutMapping("/{id}")
+    public ResponseEntity<IngredientResponse> editIngredient(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long id,
-            @Valid @RequestBody AssignCategoriesRequest request) {
-        Ingredient ingredient = ingredientService.assignCategories(id, request);
-        return ResponseEntity.ok(IngredientResponse.of(ingredient));
+            @Valid @RequestBody EditIngredientRequest request) {
+        Ingredient updatedIngredient = ingredientService.editIngredient(currentUser, id, request);
+        return ResponseEntity.ok(IngredientResponse.of(updatedIngredient));
     }
 }
