@@ -75,8 +75,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/category/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/category").authenticated()
                         .requestMatchers(HttpMethod.GET, "/category/*").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/category/*/subcategory").authenticated() // Nuevo endpoint
+                        .requestMatchers(HttpMethod.POST, "/category/*/subcategory").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/*/profile-picture").authenticated()
+                        .requestMatchers(HttpMethod.PUT,"/category/*/parent").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/user/*/profile-picture").authenticated()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()

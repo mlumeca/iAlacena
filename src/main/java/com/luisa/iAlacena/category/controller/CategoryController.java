@@ -286,4 +286,37 @@ public class CategoryController {
         Category subcategory = categoryService.createSubcategory(currentUser, parentId, request);
         return ResponseEntity.status(201).body(CategoryResponse.of(subcategory));
     }
+
+    @Operation(summary = "Reasignar la categoría padre de una categoría existente",
+            description = "Permite a un administrador cambiar la categoría padre de una categoría por su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Categoría padre reasignada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = CategoryResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                {
+                                                    "id": 2,
+                                                    "name": "Carnes Rojas",
+                                                    "parentCategoryId": 7
+                                                }
+                                                """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "404",
+                    description = "Categoría o nueva categoría padre no encontrada por ID",
+                    content = @Content)
+    })
+    @PutMapping("/{categoryId}/parent")
+    public ResponseEntity<CategoryResponse> reassignParentCategory(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long categoryId,
+            @Valid @RequestBody ReassignParentRequest request) {
+        Category category = categoryService.reassignParentCategory(currentUser, categoryId, request);
+        return ResponseEntity.ok(CategoryResponse.of(category));
+    }
 }
