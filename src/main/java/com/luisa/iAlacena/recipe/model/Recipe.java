@@ -1,5 +1,6 @@
 package com.luisa.iAlacena.recipe.model;
 
+import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,12 +37,16 @@ public class Recipe {
     @CollectionTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id"))
     @Column(name = "ingredient")
     private List<String> ingredients = new ArrayList<>();
-
-    @ElementCollection
-    @CollectionTable(name = "recipe_categories", joinColumns = @JoinColumn(name = "recipe_id"))
-    @Column(name = "category")
-    private List<String> categories = new ArrayList<>();
      */
+
+    @ManyToMany
+    @JoinTable(
+            name = "recipe_category",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    @Builder.Default
+    private List<Category> categories = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
