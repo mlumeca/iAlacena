@@ -8,6 +8,8 @@ import com.luisa.iAlacena.inventory.model.Inventory;
 import com.luisa.iAlacena.inventory.repository.InventoryRepository;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,5 +44,14 @@ public class InventoryService {
 
         Inventory savedInventory = inventoryRepository.save(inventory);
         return InventoryResponse.of(savedInventory);
+    }
+
+    @Transactional
+    public Page<InventoryResponse> getAllInventoryItems(UUID userId, Pageable pageable) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        Page<Inventory> inventoryPage = inventoryRepository.findByUserId(userId, pageable);
+        return inventoryPage.map(InventoryResponse::of);
     }
 }
