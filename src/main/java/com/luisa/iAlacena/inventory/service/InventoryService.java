@@ -68,4 +68,15 @@ public class InventoryService {
         Inventory updatedInventory = inventoryRepository.save(inventory);
         return InventoryResponse.of(updatedInventory);
     }
+
+    @Transactional
+    public void deleteIngredientFromInventory(UUID userId, Long ingredientId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        Inventory inventory = inventoryRepository.findByUserIdAndIngredientId(userId, ingredientId)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient " + ingredientId + " not found in inventory for user " + userId));
+
+        inventoryRepository.delete(inventory);
+    }
 }
