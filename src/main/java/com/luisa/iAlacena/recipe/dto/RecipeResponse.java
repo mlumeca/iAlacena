@@ -1,6 +1,7 @@
 package com.luisa.iAlacena.recipe.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.recipe.model.Recipe;
 
 import java.util.List;
@@ -11,8 +12,7 @@ public record RecipeResponse(
         String name,
         String description,
         int portions,
-        //List<String> ingredients,
-        //List<String> categories,
+        List<CategorySummary> categories,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         UUID userId
 ) {
@@ -22,9 +22,20 @@ public record RecipeResponse(
                 recipe.getName(),
                 recipe.getDescription(),
                 recipe.getPortions(),
-                //recipe.getIngredients(),
-                //recipe.getCategories(),
+                recipe.getCategories().stream()
+                        .map(CategorySummary::of)
+                        .toList(),
                 recipe.getUser().getId()
         );
+    }
+
+    // Nested record for category summary
+    public record CategorySummary(
+            Long id,
+            String name
+    ) {
+        public static CategorySummary of(Category category) {
+            return new CategorySummary(category.getId(), category.getName());
+        }
     }
 }
