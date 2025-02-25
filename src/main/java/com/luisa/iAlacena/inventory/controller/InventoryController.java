@@ -193,4 +193,33 @@ public class InventoryController {
         InventoryResponse updatedInventory = inventoryService.updateIngredientQuantity(userId, ingredientId, request);
         return ResponseEntity.ok(updatedInventory);
     }
+
+    @Operation(summary = "Eliminar un ingrediente del inventario",
+            description = "Permite a un usuario registrado eliminar un ingrediente de su inventario.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Ingrediente eliminado del inventario con éxito",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Usuario o ingrediente no encontrado en el inventario",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propio usuario puede eliminar de su inventario",
+                    content = @Content)
+    })
+    @DeleteMapping("/{user_id}/inventory/{ingredient_id}")
+    public ResponseEntity<Void> deleteIngredientFromInventory(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId,
+            @PathVariable("ingredient_id") Long ingredientId) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only delete ingredients from your own inventory");
+        }
+
+        inventoryService.deleteIngredientFromInventory(userId, ingredientId);
+        return ResponseEntity.noContent().build();
+    }
 }
