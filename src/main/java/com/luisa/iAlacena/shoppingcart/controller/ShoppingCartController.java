@@ -199,4 +199,47 @@ public class ShoppingCartController {
         Page<ShoppingCartResponse> cartPage = shoppingCartService.getCartContents(userId, pageable);
         return ResponseEntity.ok(cartPage);
     }
+
+    @Operation(summary = "Vaciar el carrito de compra",
+            description = "Permite a un usuario registrado eliminar todos los ingredientes de su carrito de compra.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Carrito vaciado con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ShoppingCartResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "userId": "550e8400-e29b-41d4-a716-446655440001",
+                                                        "createdAt": "2025-02-25T10:00:00",
+                                                        "items": []
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Usuario no encontrado",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propio usuario puede vaciar su carrito",
+                    content = @Content)
+    })
+    @DeleteMapping("/{user_id}/shopping-cart")
+    public ResponseEntity<ShoppingCartResponse> clearCart(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only clear your own shopping cart");
+        }
+
+        ShoppingCartResponse response = shoppingCartService.clearCart(userId);
+        return ResponseEntity.ok(response);
+    }
 }

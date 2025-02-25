@@ -63,4 +63,8 @@ public class ShoppingCart {
             }
         }
     }
+
+    public void clearCart() {
+        items.clear();
+    }
 }

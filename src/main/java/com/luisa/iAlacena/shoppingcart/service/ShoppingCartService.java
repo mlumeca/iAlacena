@@ -81,4 +81,18 @@ public class ShoppingCartService {
         List<ShoppingCartResponse> content = List.of(ShoppingCartResponse.of(cart));
         return new PageImpl<>(content, pageable, content.size());
     }
+
+    @Transactional
+    public ShoppingCartResponse clearCart(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        ShoppingCart cart = user.getShoppingCart();
+        if (cart == null) {
+            throw new IllegalStateException("Shopping cart not initialized for user " + userId);
+        }
+        cart.clearCart();
+        ShoppingCart updatedCart = shoppingCartRepository.save(cart);
+
+        return ShoppingCartResponse.of(updatedCart);
+    }
 }
