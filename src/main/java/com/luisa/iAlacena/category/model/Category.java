@@ -1,5 +1,6 @@
 package com.luisa.iAlacena.category.model;
 
+import com.luisa.iAlacena.ingredient.model.Ingredient;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -31,6 +32,10 @@ public class Category {
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private List<Category> childCategories = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "categories")
+    @Builder.Default
+    private List<Ingredient> ingredients = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {
