@@ -14,7 +14,9 @@ public record CreateRecipeRequest(
         String description,
 
         @Min(value = 1, message = "portions.min")
-        int portions
+        int portions,
+
+        List<Long> categoryIds
 
         //@NotEmpty(message = "ingredients.required")
         //List<String> ingredients
