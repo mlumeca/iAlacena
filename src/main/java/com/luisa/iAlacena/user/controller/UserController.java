@@ -35,10 +35,10 @@ public class UserController {
     }
 
     @Operation(summary = "Creación de un nuevo perfil de usuario",
-            description = "Registra un nuevo usuario con rol USER.")
+            description = "Registra un nuevo usuario con rol USER. Al crear el usuario, se genera automáticamente un carrito de compra vacío asociado a él.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
-                    description = "Se ha creado un usuario",
+                    description = "Usuario registrado con éxito, con un carrito de compra vacío creado automáticamente",
                     content = {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = UserResponse.class),
@@ -49,14 +49,15 @@ public class UserController {
                                                         "id": "550e8400-e29b-41d4-a716-446655440000",
                                                         "username": "juanperez",
                                                         "token": null,
-                                                        "refreshToken": null
+                                                        "refreshToken": null,
+                                                        "avatar": null
                                                     }
                                                     """
                                             )
                                     })
                     }),
             @ApiResponse(responseCode = "400",
-                    description = "¡Error!, Datos incorrectos.",
+                    description = "¡Error!, Datos incorrectos o usuario/email ya existente.",
                     content = @Content)
     })
     @PostMapping("/register")
@@ -66,10 +67,10 @@ public class UserController {
     }
 
     @Operation(summary = "Creación de un nuevo perfil de administrador",
-            description = "Registra un nuevo usuario con rol ADMIN.")
+            description = "Registra un nuevo usuario con rol ADMIN. Al crear el administrador, se genera automáticamente un carrito de compra vacío asociado a él.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
-                    description = "Se ha creado un administrador",
+                    description = "Administrador registrado con éxito, con un carrito de compra vacío creado automáticamente",
                     content = {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = UserResponse.class),
@@ -80,14 +81,15 @@ public class UserController {
                                                         "id": "550e8400-e29b-41d4-a716-446655440000",
                                                         "username": "adminperez",
                                                         "token": null,
-                                                        "refreshToken": null
+                                                        "refreshToken": null,
+                                                        "avatar": null
                                                     }
                                                     """
                                             )
                                     })
                     }),
             @ApiResponse(responseCode = "400",
-                    description = "¡Error!, Datos incorrectos.",
+                    description = "¡Error!, Datos incorrectos o usuario/email ya existente.",
                     content = @Content)
     })
     @PostMapping("/register-admin")
