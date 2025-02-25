@@ -1,5 +1,6 @@
 package com.luisa.iAlacena.user.model;
 
+import com.luisa.iAlacena.favorites.model.Favorites;
 import com.luisa.iAlacena.recipe.model.Recipe;
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,17 +58,6 @@ public class User implements UserDetails {
     @Column(name = "reset_password_token_expiry")
     private LocalDateTime resetPasswordTokenExpiry;
 
-    /*
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ShoppingCart shoppingCart;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Despensa despensa;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<RecetasFavoritas> recetasFavoritas;
-    */
-
     @OneToMany(
             mappedBy = "user",
             fetch = FetchType.LAZY,
@@ -77,6 +67,16 @@ public class User implements UserDetails {
     @ToString.Exclude
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @ToString.Exclude
+    @Builder.Default
+    private List<Favorites> favorites = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -135,13 +135,35 @@ public class User implements UserDetails {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    //helpers
-    public void addRecipes (Recipe r){
+    // Helpers for Recipes
+    public void addRecipes(Recipe r) {
         r.setUser(this);
         this.getRecipes().add(r);
     }
-    public void removeRecipes (Recipe r){
+
+    public void removeRecipes(Recipe r) {
         this.getRecipes().remove(r);
         r.setUser(null);
     }
+
+    // Helpers for Favorites
+    public void addFavorite(Favorites f) {
+        f.setUser(this);
+        this.getFavorites().add(f);
+    }
+
+    public void removeFavorite(Favorites f) {
+        this.getFavorites().remove(f);
+        f.setUser(null);
+    }
 }
+    /*
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ShoppingCart shoppingCart;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Despensa despensa;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<RecetasFavoritas> recetasFavoritas;
+    */
