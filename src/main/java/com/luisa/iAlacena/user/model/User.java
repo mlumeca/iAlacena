@@ -1,6 +1,7 @@
 package com.luisa.iAlacena.user.model;
 
 import com.luisa.iAlacena.favorites.model.Favorites;
+import com.luisa.iAlacena.inventory.model.Inventory;
 import com.luisa.iAlacena.recipe.model.Recipe;
 import jakarta.persistence.*;
 import lombok.*;
@@ -77,6 +78,16 @@ public class User implements UserDetails {
     @ToString.Exclude
     @Builder.Default
     private List<Favorites> favorites = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @ToString.Exclude
+    @Builder.Default
+    private List<Inventory> inventory = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -156,14 +167,19 @@ public class User implements UserDetails {
         this.getFavorites().remove(f);
         f.setUser(null);
     }
+
+    // Helpers for Inventory
+    public void addInventoryItem(Inventory i) {
+        i.setUser(this);
+        this.getInventory().add(i);
+    }
+
+    public void removeInventoryItem(Inventory i) {
+        this.getInventory().remove(i);
+        i.setUser(null);
+    }
 }
     /*
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private ShoppingCart shoppingCart;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Despensa despensa;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<RecetasFavoritas> recetasFavoritas;
     */
