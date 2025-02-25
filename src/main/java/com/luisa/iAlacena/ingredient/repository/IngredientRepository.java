@@ -60,4 +60,12 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
             @Param("categoryId") Long categoryId,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT i
+            FROM Ingredient i
+            LEFT JOIN FETCH i.categories
+            WHERE i.id = :id
+            """)
+    Optional<Ingredient> findByIdWithCategories(@Param("id") Long id);
 }
