@@ -2,6 +2,9 @@ package com.luisa.iAlacena.shoppingcart.service;
 
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
+import com.luisa.iAlacena.recipe.model.Recipe;
+import com.luisa.iAlacena.recipe.model.RecipeIngredient;
+import com.luisa.iAlacena.recipe.repository.RecipeRepository;
 import com.luisa.iAlacena.shoppingcart.dto.AddToCartRequest;
 import com.luisa.iAlacena.shoppingcart.dto.ShoppingCartResponse;
 import com.luisa.iAlacena.shoppingcart.model.ShoppingCart;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,12 +30,14 @@ public class ShoppingCartService {
     private final UserRepository userRepository;
     private final IngredientRepository ingredientRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
+    private final RecipeRepository recipeRepository;
 
-    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, UserRepository userRepository, IngredientRepository ingredientRepository, ShoppingCartItemRepository shoppingCartItemRepository) {
+    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, UserRepository userRepository, IngredientRepository ingredientRepository, ShoppingCartItemRepository shoppingCartItemRepository, RecipeRepository recipeRepository) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.userRepository = userRepository;
         this.ingredientRepository = ingredientRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
+        this.recipeRepository = recipeRepository;
     }
 
     @Transactional
@@ -110,5 +116,37 @@ public class ShoppingCartService {
 
         item.setQuantity(quantity);
         return shoppingCartItemRepository.save(item);
+    }
+
+    @Transactional
+    public ShoppingCartResponse addRecipeIngredientsToCart(UUID userId, Long recipeId) {
+        ShoppingCart cart = shoppingCartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Shopping cart not found for user: " + userId));
+
+        Recipe recipe = recipeRepository.findByIdWithDetails(recipeId)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + recipeId));
+
+        for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
+            Ingredient ingredient = recipeIngredient.getIngredient();
+            int quantityToAdd = recipeIngredient.getQuantity();
+
+            Optional<ShoppingCartItem> existingItem = shoppingCartItemRepository.findByShoppingCartIdAndIngredientId(cart.getId(), ingredient.getId());
+            if (existingItem.isPresent()) {
+                ShoppingCartItem item = existingItem.get();
+                item.setQuantity(item.getQuantity() + quantityToAdd);
+                shoppingCartItemRepository.save(item);
+            } else {
+                ShoppingCartItem newItem = ShoppingCartItem.builder()
+                        .shoppingCart(cart)
+                        .ingredient(ingredient)
+                        .quantity(quantityToAdd)
+                        .build();
+                shoppingCartItemRepository.save(newItem);
+            }
+        }
+
+        ShoppingCart updatedCart = shoppingCartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("Shopping cart not found after update"));
+        return ShoppingCartResponse.of(updatedCart);
     }
 }

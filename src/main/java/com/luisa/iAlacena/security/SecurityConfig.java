@@ -85,6 +85,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/user/{user_id}/shopping-cart/{ingredient_id}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/user/{user_id}/shopping-cart").authenticated()
                         .requestMatchers(HttpMethod.GET, "/user/{user_id}/shopping-cart").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/user/{user_id}/shopping-cart/recipe/{recipe_id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/ingredient/create").authenticated()
                         .requestMatchers(HttpMethod.GET, "/ingredient").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/ingredient/{id}").hasRole("ADMIN")

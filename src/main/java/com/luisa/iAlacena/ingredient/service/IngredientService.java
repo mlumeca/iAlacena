@@ -8,7 +8,7 @@ import com.luisa.iAlacena.ingredient.dto.EditIngredientRequest;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.inventory.repository.InventoryRepository;
-import com.luisa.iAlacena.recipe.model.Recipe;
+import com.luisa.iAlacena.recipe.repository.RecipeIngredientRepository;
 import com.luisa.iAlacena.shoppingcart.repository.ShoppingCartItemRepository;
 import com.luisa.iAlacena.user.model.User;
 import org.springframework.data.domain.Page;
@@ -27,15 +27,18 @@ public class IngredientService {
     private final CategoryRepository categoryRepository;
     private final InventoryRepository inventoryRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
 
     public IngredientService(IngredientRepository ingredientRepository,
                              CategoryRepository categoryRepository,
                              InventoryRepository inventoryRepository,
-                             ShoppingCartItemRepository shoppingCartItemRepository) {
+                             ShoppingCartItemRepository shoppingCartItemRepository,
+                             RecipeIngredientRepository recipeIngredientRepository) {
         this.ingredientRepository = ingredientRepository;
         this.categoryRepository = categoryRepository;
         this.inventoryRepository = inventoryRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
+        this.recipeIngredientRepository = recipeIngredientRepository;
     }
 
     public Ingredient createIngredient(User currentUser, CreateIngredientRequest request) {
@@ -132,14 +135,9 @@ public class IngredientService {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
 
-        for (Recipe recipe : ingredient.getRecipes()) {
-            recipe.getIngredients().remove(ingredient);
-        }
-
+        recipeIngredientRepository.deleteByIngredientId(id);
         inventoryRepository.deleteByIngredientId(id);
-
         shoppingCartItemRepository.deleteByIngredientId(id);
-
         ingredientRepository.delete(ingredient);
     }
 }

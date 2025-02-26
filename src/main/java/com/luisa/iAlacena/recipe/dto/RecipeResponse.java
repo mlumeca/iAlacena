@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.recipe.model.Recipe;
+import com.luisa.iAlacena.recipe.model.RecipeIngredient;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,8 +32,8 @@ public record RecipeResponse(
                 recipe.getCreatedAt(),
                 recipe.getUpdatedAt(),
                 recipe.getImgUrl(),
-                recipe.getIngredients().stream()
-                        .map(IngredientSummary::of)
+                recipe.getRecipeIngredients().stream()
+                        .map(ri -> IngredientSummary.of(ri.getIngredient(), ri.getQuantity()))
                         .toList(),
                 recipe.getCategories().stream()
                         .map(CategorySummary::of)
@@ -47,11 +48,11 @@ public record RecipeResponse(
             int quantity,
             String unitOfMeasure
     ) {
-        public static IngredientSummary of(Ingredient ingredient) {
+        public static IngredientSummary of(Ingredient ingredient, int quantity) {
             return new IngredientSummary(
                     ingredient.getId(),
                     ingredient.getName(),
-                    ingredient.getQuantity(),
+                    quantity,
                     ingredient.getUnitOfMeasure().name()
             );
         }

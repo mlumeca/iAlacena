@@ -9,6 +9,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -41,14 +42,9 @@ public class Recipe {
     @Column
     private String imgUrl;
 
-    @ManyToMany
-    @JoinTable(
-            name = "recipe_ingredient",
-            joinColumns = @JoinColumn(name = "recipe_id"),
-            inverseJoinColumns = @JoinColumn(name = "ingredient_id")
-    )
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private Set<Ingredient> ingredients = new HashSet<>();
+    private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -88,5 +84,32 @@ public class Recipe {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public int getIngredientQuantity(Ingredient ingredient) {
+        return recipeIngredients.stream()
+                .filter(ri -> ri.getIngredient().equals(ingredient))
+                .findFirst()
+                .map(RecipeIngredient::getQuantity)
+                .orElse(1);
+    }
+
+    public Set<Ingredient> getIngredients() {
+        return recipeIngredients.stream()
+                .map(RecipeIngredient::getIngredient)
+                .collect(Collectors.toSet());
+    }
+
+    public void addIngredient(Ingredient ingredient, int quantity) {
+        RecipeIngredient recipeIngredient = RecipeIngredient.builder()
+                .recipe(this)
+                .ingredient(ingredient)
+                .quantity(quantity)
+                .build();
+        recipeIngredients.add(recipeIngredient);
+    }
+
+    public void removeIngredient(Ingredient ingredient) {
+        recipeIngredients.removeIf(ri -> ri.getIngredient().equals(ingredient));
     }
 }

@@ -78,10 +78,9 @@ public class RecipeController {
     public ResponseEntity<RecipeResponse> createRecipe(
             @AuthenticationPrincipal User currentUser,
             @Valid @RequestBody CreateRecipeRequest request) {
-        Recipe recipe = recipeService.createRecipe(currentUser, request);
-        return ResponseEntity.status(201).body(RecipeResponse.of(recipe));
+        RecipeResponse response = recipeService.createRecipe(currentUser, request);
+        return ResponseEntity.ok(response);
     }
-
     @Operation(summary = "Listar todas las recetas",
             description = "Permite a un administrador ver todas las recetas disponibles con filtros y paginación.")
     @ApiResponses(value = {
@@ -131,15 +130,15 @@ public class RecipeController {
                     content = @Content)
     })
     @GetMapping
-    public ResponseEntity<ListRecipeResponse> getAllRecipes(
+    public ResponseEntity<Page<RecipeResponse>> getAllRecipes(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long categoryId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Recipe> recipePage = recipeService.getAllRecipes(currentUser, pageable, name, categoryId);
-        return ResponseEntity.ok(ListRecipeResponse.of(recipePage));
+        Page<RecipeResponse> recipes = recipeService.getAllRecipes(currentUser, pageable, name, categoryId);
+        return ResponseEntity.ok(recipes);
     }
 
     @Operation(summary = "Obtener detalles de una receta específica",
@@ -182,10 +181,9 @@ public class RecipeController {
                     description = "Receta no encontrada",
                     content = @Content)
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<RecipeResponse> getRecipeById(@PathVariable Long id) {
-        Recipe recipe = recipeService.getRecipeById(id);
-        return ResponseEntity.ok(RecipeResponse.of(recipe));
+    public ResponseEntity<RecipeResponse> getRecipeById(@PathVariable("id") Long id) {
+        RecipeResponse response = recipeService.getRecipeById(id);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Editar una receta existente",
@@ -237,10 +235,10 @@ public class RecipeController {
     @PutMapping("/{id}")
     public ResponseEntity<RecipeResponse> editRecipe(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody EditRecipeRequest request) {
-        Recipe updatedRecipe = recipeService.editRecipe(currentUser, id, request);
-        return ResponseEntity.ok(RecipeResponse.of(updatedRecipe));
+        RecipeResponse response = recipeService.editRecipe(currentUser, id, request);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Eliminar una receta",

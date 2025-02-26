@@ -41,10 +41,6 @@ public class Ingredient {
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
-    @ManyToMany(mappedBy = "ingredients")
-    @Builder.Default
-    private Set<Recipe> recipes = new HashSet<>();
-
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

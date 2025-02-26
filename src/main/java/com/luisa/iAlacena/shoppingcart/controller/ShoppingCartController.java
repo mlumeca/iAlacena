@@ -289,4 +289,60 @@ public class ShoppingCartController {
         ShoppingCartItem updatedItem = shoppingCartService.updateItemQuantity(userId, ingredientId, request.getQuantity());
         return ResponseEntity.ok(updatedItem);
     }
+
+    @Operation(summary = "Añadir todos los ingredientes de una receta al carrito",
+            description = "Permite a un usuario añadir todos los ingredientes de una receta específica a su carrito de compra, ajustando las cantidades según la receta.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Ingredientes de la receta añadidos al carrito con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ShoppingCartResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "userId": "550e8400-e29b-41d4-a716-446655440001",
+                                                        "createdAt": "2025-02-24T12:00:00",
+                                                        "items": [
+                                                            {
+                                                                "ingredientId": 1,
+                                                                "quantity": 1
+                                                            },
+                                                            {
+                                                                "ingredientId": 2,
+                                                                "quantity": 1
+                                                            }
+                                                        ]
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Receta no encontrada o datos inválidos",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propietario del carrito puede modificarlo",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Receta no encontrada",
+                    content = @Content)
+    })
+    @PostMapping("/recipe/{recipe_id}")
+    public ResponseEntity<ShoppingCartResponse> addRecipeIngredientsToCart(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId,
+            @PathVariable("recipe_id") Long recipeId) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only add ingredients to your own shopping cart");
+        }
+
+        ShoppingCartResponse response = shoppingCartService.addRecipeIngredientsToCart(userId, recipeId);
+        return ResponseEntity.ok(response);
+    }
 }

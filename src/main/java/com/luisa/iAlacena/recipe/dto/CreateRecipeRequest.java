@@ -2,7 +2,6 @@ package com.luisa.iAlacena.recipe.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -17,7 +16,4 @@ public record CreateRecipeRequest(
         int portions,
 
         List<Long> categoryIds
-
-        //@NotEmpty(message = "ingredients.required")
-        //List<String> ingredients
 ) {}

@@ -8,6 +8,7 @@ import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.recipe.dto.CreateRecipeRequest;
 import com.luisa.iAlacena.recipe.dto.EditRecipeRequest;
+import com.luisa.iAlacena.recipe.dto.RecipeResponse;
 import com.luisa.iAlacena.recipe.model.Recipe;
 import com.luisa.iAlacena.recipe.repository.RecipeRepository;
 import com.luisa.iAlacena.user.model.User;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RecipeService {
@@ -29,17 +31,18 @@ public class RecipeService {
     private final IngredientRepository ingredientRepository;
     private final FavoritesRepository favoritesRepository;
 
-    public RecipeService(RecipeRepository recipeRepository, CategoryRepository categoryRepository, IngredientRepository ingredientRepository, FavoritesRepository favoritesRepository) {
+    public RecipeService(RecipeRepository recipeRepository, CategoryRepository categoryRepository,
+                         IngredientRepository ingredientRepository, FavoritesRepository favoritesRepository) {
         this.recipeRepository = recipeRepository;
         this.categoryRepository = categoryRepository;
         this.ingredientRepository = ingredientRepository;
         this.favoritesRepository = favoritesRepository;
     }
 
-    public Recipe createRecipe(User currentUser, CreateRecipeRequest request) {
+    public RecipeResponse createRecipe(User currentUser, CreateRecipeRequest request) {
         Set<Category> categories = request.categoryIds() != null && !request.categoryIds().isEmpty()
-                ? new HashSet<>(categoryRepository.findAllById(request.categoryIds())) // Convert List to Set
-                : Set.of(); // Empty Set if no categories
+                ? new HashSet<>(categoryRepository.findAllById(request.categoryIds()))
+                : Set.of();
 
         if (request.categoryIds() != null && categories.size() != request.categoryIds().size()) {
             throw new IllegalArgumentException("One or more category IDs do not exist");
@@ -52,45 +55,51 @@ public class RecipeService {
                 .categories(categories)
                 .user(currentUser)
                 .build();
-        return recipeRepository.save(recipe);
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        return RecipeResponse.of(savedRecipe);
     }
 
-    public Page<Recipe> getAllRecipes(User currentUser, Pageable pageable, String name, Long categoryId) {
+    public Page<RecipeResponse> getAllRecipes(User currentUser, Pageable pageable, String name, Long categoryId) {
         if (!currentUser.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
             throw new AccessDeniedException("Only administrators can view all recipes");
         }
 
+        Page<Recipe> recipes;
         if (name != null && !name.isEmpty() && categoryId != null) {
-            return recipeRepository.findByNameContainingIgnoreCaseAndCategoryId(name, categoryId, pageable);
+            recipes = recipeRepository.findByNameContainingIgnoreCaseAndCategoryId(name, categoryId, pageable);
         } else if (name != null && !name.isEmpty()) {
-            return recipeRepository.findByNameContainingIgnoreCase(name, pageable);
+            recipes = recipeRepository.findByNameContainingIgnoreCase(name, pageable);
         } else if (categoryId != null) {
-            return recipeRepository.findByCategoryId(categoryId, pageable);
+            recipes = recipeRepository.findByCategoryId(categoryId, pageable);
         } else {
-            return recipeRepository.findAllWithUserAndCategories(pageable);
+            recipes = recipeRepository.findAllWithUserAndCategories(pageable);
         }
+        return recipes.map(RecipeResponse::of);
     }
 
-    public Recipe assignCategories(Long id, AssignCategoriesRequest request) {
+    public RecipeResponse assignCategories(Long id, AssignCategoriesRequest request) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
 
-        Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.categoryIds())); // Convert List to Set
+        Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.categoryIds()));
         if (categories.size() != request.categoryIds().size()) {
             throw new IllegalArgumentException("One or more category IDs do not exist");
         }
 
-        recipe.setCategories(categories); // Now compatible with Set<Category>
-        return recipeRepository.save(recipe);
+        recipe.setCategories(categories);
+        Recipe updatedRecipe = recipeRepository.save(recipe);
+        return RecipeResponse.of(updatedRecipe);
     }
 
-    public Recipe getRecipeById(Long id) {
-        return recipeRepository.findByIdWithDetails(id)
+    public RecipeResponse getRecipeById(Long id) {
+        Recipe recipe = recipeRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
+        return RecipeResponse.of(recipe);
     }
 
-    public Recipe editRecipe(User currentUser, Long id, EditRecipeRequest request) {
+    @Transactional
+    public RecipeResponse editRecipe(User currentUser, Long id, EditRecipeRequest request) {
         Recipe recipe = recipeRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
 
@@ -117,15 +126,20 @@ public class RecipeService {
             }
             recipe.setCategories(categories);
         }
-        if (request.ingredientIds() != null) {
-            Set<Ingredient> ingredients = new HashSet<>(ingredientRepository.findAllById(request.ingredientIds()));
-            if (ingredients.size() != request.ingredientIds().size()) {
+        if (request.ingredients() != null) {
+            Set<Ingredient> ingredients = new HashSet<>(ingredientRepository.findAllById(request.ingredients().keySet()));
+            if (ingredients.size() != request.ingredients().size()) {
                 throw new IllegalArgumentException("One or more ingredient IDs do not exist");
             }
-            recipe.setIngredients(ingredients);
+            recipe.getRecipeIngredients().clear();
+            for (Ingredient ingredient : ingredients) {
+                int quantity = request.ingredients().getOrDefault(ingredient.getId(), 1);
+                recipe.addIngredient(ingredient, quantity);
+            }
         }
 
-        return recipeRepository.save(recipe);
+        Recipe updatedRecipe = recipeRepository.save(recipe);
+        return RecipeResponse.of(updatedRecipe);
     }
 
     @Transactional
@@ -138,7 +152,6 @@ public class RecipeService {
             throw new AccessDeniedException("Only the creator or an admin can delete this recipe");
         }
         favoritesRepository.deleteByRecipeId(id);
-
         recipeRepository.delete(recipe);
     }
 }

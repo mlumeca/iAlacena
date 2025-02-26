@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.util.Map;
 
 public record EditRecipeRequest(
         @Size(min = 1, message = "name.min")
@@ -19,5 +20,6 @@ public record EditRecipeRequest(
 
         List<Long> categoryIds,
 
-        List<Long> ingredientIds
+        Map<Long, Integer> ingredients
 ) {}
+
