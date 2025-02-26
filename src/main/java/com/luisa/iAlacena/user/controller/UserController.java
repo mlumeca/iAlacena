@@ -413,4 +413,24 @@ public class UserController {
         User updatedUser = userService.updateUserRole(currentUser, id, request);
         return ResponseEntity.ok(UserResponse.of(updatedUser));
     }
+
+    @Operation(summary = "Eliminar mi cuenta",
+            description = "Permite a un usuario autenticado eliminar su propia cuenta de la aplicación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Cuenta eliminada con éxito", content = @Content),
+            @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado - Solo el propietario puede eliminar su cuenta", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content)
+    })
+    @DeleteMapping("/{user_id}")
+    public ResponseEntity<Void> deleteAccount(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only delete your own account");
+        }
+
+        userService.deleteAccount(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

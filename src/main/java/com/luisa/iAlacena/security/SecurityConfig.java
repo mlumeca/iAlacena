@@ -98,6 +98,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/*/profile-picture").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/user/change-password").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/user/{id}/role").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/user/{user_id}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/category/*/parent").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/category/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/user/*/profile-picture").authenticated()

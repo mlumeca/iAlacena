@@ -278,4 +278,25 @@ public class UserService {
                 targetUser.getUsername(), targetUser.getRole(), request.role(), currentUser.getUsername());
         return updatedUser;
     }
+
+    @Transactional
+    public void deleteAccount(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        userRepository.deleteRefreshTokenByUserId(userId);
+
+        String avatar = user.getAvatar();
+        if (avatar != null && !avatar.isEmpty()) {
+            String filename = avatar.substring(avatar.lastIndexOf("/") + 1);
+            try {
+                storageService.deleteFile(filename);
+                log.info("Deleted profile picture for user {}: {}", userId, filename);
+            } catch (Exception e) {
+                log.warn("Could not delete profile picture for user {}: {}", userId, filename, e);
+            }
+        }
+
+        userRepository.delete(user);
+        log.info("User account deleted successfully: {}", userId);
+    }
 }
