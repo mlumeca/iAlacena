@@ -4,6 +4,7 @@ import com.luisa.iAlacena.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -52,4 +53,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             WHERE u.resetPasswordToken = :token
             """)
     Optional<User> findByResetPasswordToken(@Param("token") String token);
+
+    @Modifying
+    @Query("""
+            DELETE FROM RefreshToken rt
+            WHERE rt.user.id = :userId
+            """)
+    void deleteRefreshTokenByUserId(@Param("userId") UUID userId);
 }
