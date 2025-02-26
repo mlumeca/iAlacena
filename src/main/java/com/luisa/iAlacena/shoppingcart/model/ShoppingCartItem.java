@@ -1,5 +1,6 @@
 package com.luisa.iAlacena.shoppingcart.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,6 +18,7 @@ public class ShoppingCartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "shopping_cart_id",
@@ -25,6 +27,7 @@ public class ShoppingCartItem {
     )
     private ShoppingCart shoppingCart;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "ingredient_id",
@@ -35,4 +38,12 @@ public class ShoppingCartItem {
 
     @Column(nullable = false)
     private int quantity;
+
+    public Long getShoppingCartId() {
+        return shoppingCart != null ? shoppingCart.getId() : null;
+    }
+
+    public Long getIngredientId() {
+        return ingredient != null ? ingredient.getId() : null;
+    }
 }

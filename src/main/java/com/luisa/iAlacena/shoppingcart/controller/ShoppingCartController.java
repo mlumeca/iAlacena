@@ -2,6 +2,8 @@ package com.luisa.iAlacena.shoppingcart.controller;
 
 import com.luisa.iAlacena.shoppingcart.dto.AddToCartRequest;
 import com.luisa.iAlacena.shoppingcart.dto.ShoppingCartResponse;
+import com.luisa.iAlacena.shoppingcart.dto.UpdateShoppingCartItemQuantityRequest;
+import com.luisa.iAlacena.shoppingcart.model.ShoppingCartItem;
 import com.luisa.iAlacena.shoppingcart.service.ShoppingCartService;
 import com.luisa.iAlacena.user.model.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/user/{user_id}/shopping-cart")  // Ajustado para incluir {user_id}/shopping-cart
 @Tag(name = "Carrito de Compra", description = "El controlador del carrito de compra del usuario.")
 public class ShoppingCartController {
 
@@ -68,7 +70,7 @@ public class ShoppingCartController {
                     description = "Acceso denegado - Solo el propio usuario puede modificar su carrito",
                     content = @Content)
     })
-    @PostMapping("/{user_id}/shopping-cart")
+    @PostMapping
     public ResponseEntity<ShoppingCartResponse> addIngredientToCart(
             @AuthenticationPrincipal User currentUser,
             @PathVariable("user_id") UUID userId,
@@ -117,7 +119,7 @@ public class ShoppingCartController {
                     description = "Acceso denegado - Solo el propio usuario puede modificar su carrito",
                     content = @Content)
     })
-    @DeleteMapping("/{user_id}/shopping-cart/{ingredient_id}")
+    @DeleteMapping("/{ingredient_id}")
     public ResponseEntity<ShoppingCartResponse> removeIngredientFromCart(
             @AuthenticationPrincipal User currentUser,
             @PathVariable("user_id") UUID userId,
@@ -185,7 +187,7 @@ public class ShoppingCartController {
                     description = "Acceso denegado - Solo el propio usuario puede ver su carrito",
                     content = @Content)
     })
-    @GetMapping("/{user_id}/shopping-cart")
+    @GetMapping
     public ResponseEntity<Page<ShoppingCartResponse>> getCartContents(
             @AuthenticationPrincipal User currentUser,
             @PathVariable("user_id") UUID userId,
@@ -231,7 +233,7 @@ public class ShoppingCartController {
                     description = "Acceso denegado - Solo el propio usuario puede vaciar su carrito",
                     content = @Content)
     })
-    @DeleteMapping("/{user_id}/shopping-cart")
+    @DeleteMapping
     public ResponseEntity<ShoppingCartResponse> clearCart(
             @AuthenticationPrincipal User currentUser,
             @PathVariable("user_id") UUID userId) {
@@ -241,5 +243,50 @@ public class ShoppingCartController {
 
         ShoppingCartResponse response = shoppingCartService.clearCart(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Actualizar la cantidad de un ingrediente en el carrito",
+            description = "Permite a un usuario actualizar la cantidad de un ingrediente específico en su carrito de compra a un valor exacto.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Cantidad actualizada con éxito",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ShoppingCartItem.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                    {
+                                                        "id": 1,
+                                                        "shoppingCartId": 1,
+                                                        "ingredientId": 1,
+                                                        "quantity": 5
+                                                    }
+                                                    """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "400",
+                    description = "Ingrediente no encontrado en el carrito o datos inválidos",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Acceso denegado - Solo el propietario del carrito puede modificarlo",
+                    content = @Content)
+    })
+    @PutMapping("/item/{ingredient_id}")
+    public ResponseEntity<ShoppingCartItem> updateShoppingCartItemQuantity(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("user_id") UUID userId,
+            @PathVariable("ingredient_id") Long ingredientId,
+            @Valid @RequestBody UpdateShoppingCartItemQuantityRequest request) {
+        if (!currentUser.getId().equals(userId)) {
+            throw new IllegalArgumentException("You can only update your own shopping cart");
+        }
+
+        ShoppingCartItem updatedItem = shoppingCartService.updateItemQuantity(userId, ingredientId, request.getQuantity());
+        return ResponseEntity.ok(updatedItem);
     }
 }
