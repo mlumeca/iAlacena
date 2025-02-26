@@ -4,6 +4,7 @@ import com.luisa.iAlacena.favorites.model.Favorites;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -28,4 +29,8 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
             WHERE f.user.id = :userId
             """)
     Page<Favorites> findByUserId(@Param("userId") UUID userId, Pageable pageable);
+
+    @Modifying
+    @Query("DELETE FROM Favorites f WHERE f.recipe.id = :recipeId")
+    void deleteByRecipeId(@Param("recipeId") Long recipeId);
 }

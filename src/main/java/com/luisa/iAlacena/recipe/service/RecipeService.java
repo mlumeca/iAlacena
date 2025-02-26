@@ -3,6 +3,7 @@ package com.luisa.iAlacena.recipe.service;
 import com.luisa.iAlacena.category.dto.AssignCategoriesRequest;
 import com.luisa.iAlacena.category.model.Category;
 import com.luisa.iAlacena.category.repository.CategoryRepository;
+import com.luisa.iAlacena.favorites.repository.FavoritesRepository;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.recipe.dto.CreateRecipeRequest;
@@ -10,6 +11,7 @@ import com.luisa.iAlacena.recipe.dto.EditRecipeRequest;
 import com.luisa.iAlacena.recipe.model.Recipe;
 import com.luisa.iAlacena.recipe.repository.RecipeRepository;
 import com.luisa.iAlacena.user.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,11 +27,13 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final CategoryRepository categoryRepository;
     private final IngredientRepository ingredientRepository;
+    private final FavoritesRepository favoritesRepository;
 
-    public RecipeService(RecipeRepository recipeRepository, CategoryRepository categoryRepository, IngredientRepository ingredientRepository) {
+    public RecipeService(RecipeRepository recipeRepository, CategoryRepository categoryRepository, IngredientRepository ingredientRepository, FavoritesRepository favoritesRepository) {
         this.recipeRepository = recipeRepository;
         this.categoryRepository = categoryRepository;
         this.ingredientRepository = ingredientRepository;
+        this.favoritesRepository = favoritesRepository;
     }
 
     public Recipe createRecipe(User currentUser, CreateRecipeRequest request) {
@@ -122,5 +126,19 @@ public class RecipeService {
         }
 
         return recipeRepository.save(recipe);
+    }
+
+    @Transactional
+    public void deleteRecipe(User currentUser, Long id) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found with id: " + id));
+        boolean isAdmin = currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        if (!recipe.getUser().getId().equals(currentUser.getId()) && !isAdmin) {
+            throw new AccessDeniedException("Only the creator or an admin can delete this recipe");
+        }
+        favoritesRepository.deleteByRecipeId(id);
+
+        recipeRepository.delete(recipe);
     }
 }

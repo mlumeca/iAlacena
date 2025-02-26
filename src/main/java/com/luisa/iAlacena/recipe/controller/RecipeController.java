@@ -242,4 +242,20 @@ public class RecipeController {
         Recipe updatedRecipe = recipeService.editRecipe(currentUser, id, request);
         return ResponseEntity.ok(RecipeResponse.of(updatedRecipe));
     }
+
+    @Operation(summary = "Eliminar una receta",
+            description = "Permite a un usuario eliminar una receta de su colección, siempre que sea el creador de la misma.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Receta eliminada con éxito", content = @Content),
+            @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado - Solo el creador puede eliminar la receta", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Receta no encontrada", content = @Content)
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRecipe(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long id) {
+        recipeService.deleteRecipe(currentUser, id);
+        return ResponseEntity.noContent().build();
+    }
 }
