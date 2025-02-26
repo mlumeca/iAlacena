@@ -7,14 +7,17 @@ import com.luisa.iAlacena.ingredient.dto.CreateIngredientRequest;
 import com.luisa.iAlacena.ingredient.dto.EditIngredientRequest;
 import com.luisa.iAlacena.ingredient.model.Ingredient;
 import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
+import com.luisa.iAlacena.inventory.repository.InventoryRepository;
+import com.luisa.iAlacena.recipe.model.Recipe;
+import com.luisa.iAlacena.shoppingcart.repository.ShoppingCartItemRepository;
 import com.luisa.iAlacena.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -22,10 +25,17 @@ public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
     private final CategoryRepository categoryRepository;
+    private final InventoryRepository inventoryRepository;
+    private final ShoppingCartItemRepository shoppingCartItemRepository;
 
-    public IngredientService(IngredientRepository ingredientRepository, CategoryRepository categoryRepository) {
+    public IngredientService(IngredientRepository ingredientRepository,
+                             CategoryRepository categoryRepository,
+                             InventoryRepository inventoryRepository,
+                             ShoppingCartItemRepository shoppingCartItemRepository) {
         this.ingredientRepository = ingredientRepository;
         this.categoryRepository = categoryRepository;
+        this.inventoryRepository = inventoryRepository;
+        this.shoppingCartItemRepository = shoppingCartItemRepository;
     }
 
     public Ingredient createIngredient(User currentUser, CreateIngredientRequest request) {
@@ -110,5 +120,26 @@ public class IngredientService {
 
         return ingredientRepository.findByIdWithCategories(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
+    }
+
+    @Transactional
+    public void deleteIngredient(User currentUser, Long id) {
+        if (!currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Only administrators can delete ingredients");
+        }
+
+        Ingredient ingredient = ingredientRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + id));
+
+        for (Recipe recipe : ingredient.getRecipes()) {
+            recipe.getIngredients().remove(ingredient);
+        }
+
+        inventoryRepository.deleteByIngredientId(id);
+
+        shoppingCartItemRepository.deleteByIngredientId(id);
+
+        ingredientRepository.delete(ingredient);
     }
 }

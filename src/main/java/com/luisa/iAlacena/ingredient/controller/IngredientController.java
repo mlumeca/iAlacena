@@ -225,4 +225,20 @@ public class IngredientController {
         Ingredient ingredient = ingredientService.getIngredientById(currentUser, id);
         return ResponseEntity.ok(IngredientResponse.of(ingredient));
     }
+
+    @Operation(summary = "Eliminar un ingrediente obsoleto",
+            description = "Permite a un administrador eliminar un ingrediente existente. Si el ingrediente está asociado a recetas, se elimina de ellas.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Ingrediente eliminado con éxito", content = @Content),
+            @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Ingrediente no encontrado", content = @Content)
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIngredient(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long id) {
+        ingredientService.deleteIngredient(currentUser, id);
+        return ResponseEntity.noContent().build();
+    }
 }

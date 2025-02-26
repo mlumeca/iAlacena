@@ -88,19 +88,18 @@ VALUES
     (10, 2);         -- Pasta con Queso -> Carbohidratos
 
 -- Insert Recipe Ingredients
-INSERT INTO recipe_ingredient (recipe_id, ingredient_id)
-VALUES
-    (1, 1), (1, 2),       -- Pollo al Curry: Pollo, Arroz
-    (2, 1), (2, 7),       -- Ensalada César: Pollo, Lechuga
-    (3, 5), (3, 3),       -- Pasta con Tomate: Pasta, Tomate
-    (4, 9), (4, 10),      -- Pescado al Horno: Pescado, Patata
-    (5, 2), (5, 3),       -- Arroz con Verduras: Arroz, Tomate
-    (6, 4), (6, 6),       -- Sopa de Cebolla: Cebolla, Queso
-    (7, 10),              -- Patatas Fritas: Patata
-    (8, 7), (8, 3),       -- Ensalada Verde: Lechuga, Tomate
-    (9, 1),               -- Pollo Asado: Pollo
-    (10, 5), (10, 6);     -- Pasta con Queso: Pasta, Queso
-
+INSERT INTO recipe_ingredient (recipe_id, ingredient_id, quantity) VALUES
+    (1, 1, 1), (1, 2, 1),
+    (2, 1, 1), (2, 7, 1),
+    (3, 5, 1), (3, 3, 1),
+    (4, 9, 1), (4, 10, 1),
+    (5, 2, 1), (5, 3, 1),
+    (6, 4, 1), (6, 6, 1),
+    (7, 10, 1),
+    (8, 7, 1), (8, 3, 1),
+    (9, 1, 1),
+    (10, 5, 1), (10, 6, 1);
+    
 -- Insert Inventory Items (Example for user1)
 INSERT INTO inventory (id, user_id, ingredient_id, quantity, added_at)
 VALUES
