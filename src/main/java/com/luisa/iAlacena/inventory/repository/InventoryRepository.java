@@ -4,6 +4,7 @@ import com.luisa.iAlacena.inventory.model.Inventory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -26,4 +27,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             WHERE i.user.id = :userId AND i.ingredient.id = :ingredientId
             """)
     Optional<Inventory> findByUserIdAndIngredientId(@Param("userId") UUID userId, @Param("ingredientId") Long ingredientId);
+
+    @Modifying
+    @Query("DELETE FROM Inventory i WHERE i.ingredient.id = :ingredientId")
+    void deleteByIngredientId(@Param("ingredientId") Long ingredientId);
 }
