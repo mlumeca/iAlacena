@@ -5,6 +5,8 @@ import com.luisa.iAlacena.ingredient.repository.IngredientRepository;
 import com.luisa.iAlacena.shoppingcart.dto.AddToCartRequest;
 import com.luisa.iAlacena.shoppingcart.dto.ShoppingCartResponse;
 import com.luisa.iAlacena.shoppingcart.model.ShoppingCart;
+import com.luisa.iAlacena.shoppingcart.model.ShoppingCartItem;
+import com.luisa.iAlacena.shoppingcart.repository.ShoppingCartItemRepository;
 import com.luisa.iAlacena.shoppingcart.repository.ShoppingCartRepository;
 import com.luisa.iAlacena.user.model.User;
 import com.luisa.iAlacena.user.repository.UserRepository;
@@ -23,11 +25,13 @@ public class ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final UserRepository userRepository;
     private final IngredientRepository ingredientRepository;
+    private final ShoppingCartItemRepository shoppingCartItemRepository;
 
-    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, UserRepository userRepository, IngredientRepository ingredientRepository) {
+    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, UserRepository userRepository, IngredientRepository ingredientRepository, ShoppingCartItemRepository shoppingCartItemRepository) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.userRepository = userRepository;
         this.ingredientRepository = ingredientRepository;
+        this.shoppingCartItemRepository = shoppingCartItemRepository;
     }
 
     @Transactional
@@ -94,5 +98,17 @@ public class ShoppingCartService {
         ShoppingCart updatedCart = shoppingCartRepository.save(cart);
 
         return ShoppingCartResponse.of(updatedCart);
+    }
+
+    @Transactional
+    public ShoppingCartItem updateItemQuantity(UUID userId, Long ingredientId, int quantity) {
+        ShoppingCart cart = shoppingCartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Shopping cart not found for user: " + userId));
+
+        ShoppingCartItem item = shoppingCartItemRepository.findByShoppingCartIdAndIngredientId(cart.getId(), ingredientId)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient " + ingredientId + " not found in the shopping cart"));
+
+        item.setQuantity(quantity);
+        return shoppingCartItemRepository.save(item);
     }
 }
