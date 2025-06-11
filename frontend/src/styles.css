@@ -1,0 +1,13 @@
+* {
+    font-family: Roboto, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #FFFBF8;
+}
+
+h1, h2, h3, p, label {
+    color: #542D0C;
+}
