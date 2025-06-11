@@ -8,6 +8,10 @@ body {
     background-color: #FFFBF8;
 }
 
-h1, h2, h3, p, label {
+h1, h2, h3, p, label, a {
     color: #542D0C;
+}
+
+input {
+    border-color: #CE9667;
 }

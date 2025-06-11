@@ -1,0 +1,55 @@
+<div class="container d-flex justify-content-center align-items-center">
+  <div class="card">
+    <!-- Logo -->
+    <div class="text-center">
+      <img src="/assets/img/logo.svg" alt="Form Logo" class="img-fluid" />
+    </div>
+
+    <!-- Formulario -->
+    <form>
+      <!-- Campo de nombre de usuario -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Nombre de usuario</label>
+        <input
+          type="text"
+          class="form-control"
+          id="username"
+          placeholder="Ingresa tu nombre de usuario"
+        />
+      </div>
+
+      <!-- Campo de contraseña -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          placeholder="Ingresa tu contraseña"
+        />
+      </div>
+
+      <!-- Texto "¿Has olvidado la contraseña?" y checkbox -->
+      <div class="mb-3">
+        <a class="text-decoration-none">¿Has olvidado la contraseña?</a> <br />
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="rememberMe" />
+          <label class="form-check-label" for="rememberMe">Recuérdame</label>
+        </div>
+      </div>
+
+      <!-- Botón de submit -->
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+      </div>
+
+      <!-- Texto para redirigir a registro -->
+      <div class="text-center">
+        <p>
+          ¿No tienes una cuenta?
+          <a class="text-decoration-none">Regístrate aquí</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

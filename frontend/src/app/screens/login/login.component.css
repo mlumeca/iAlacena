@@ -1,0 +1,12 @@
+.card {
+  border-radius: 8px;
+  border: 2px;
+  border-color: #CE9667;
+}
+
+.btn-primary {
+  background-color: #CE9667;
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
