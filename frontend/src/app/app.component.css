@@ -1,0 +1,16 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* El contenedor ocupa el 100% de la altura de la ventana, dejando abajo al footer */
+}
+
+/* Ocupa el espacio restante sin encogerse */
+main {
+    flex: 1 0 auto;
+}
+
+/* mantienen su tamaño */
+app-header,
+app-footer {
+    flex: 0 0 auto;
+}
