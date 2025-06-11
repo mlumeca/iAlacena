@@ -3,7 +3,7 @@ version: "3.8"
 services:
   api:
     build:
-      context: .
+      context: ./backend
       dockerfile: dockerfile
     container_name: spring-alacena
     environment:
@@ -17,6 +17,18 @@ services:
         condition: service_healthy
     ports:
       - "8081:8080"
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: angular-alacena
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
     networks:
       - backend
 
