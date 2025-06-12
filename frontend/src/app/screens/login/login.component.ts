@@ -1,53 +1,60 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import {
-    FormArray,
-    FormBuilder,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
 import { LoginRequest, LoginResponse } from '../../models/auth.interface';
+import { CommonModule, JsonPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, JsonPipe],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  readonly formBuilder = inject(FormBuilder);
-  readonly authService = inject(AuthService);
-  readonly router = inject(Router);
-  usernameSignal = signal<string>;
-  passwordSignal = signal<string>;
-  remindMeSignal = signal<boolean>;
-  loginSignal = signal<LoginResponse>;
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
+  // Signals for state management
+  isSubmitting = signal(false);
+  errorMessage = signal<string | null>(null);
+
+  // Reactive form
   loginForm = this.formBuilder.group({
-    username: ['', Validators.required],
-    password: ['', Validators.required]
-  })
-
-  // Getters
-
-
+    username: ['', [Validators.required]],
+    password: ['', [Validators.required]],
+    // rememberMe: [false],
+  });
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const formValue = this.loginForm.getRawValue(); 
+      this.isSubmitting.set(true);
+      this.errorMessage.set(null);
 
-      this.authService.login(credentials as LoginRequest).subscribe({
-        next: login => {
-          this.loginSignal.update(logins => [...logins, login]);
-          this.loginForm.reset();
+      const credentials: LoginRequest = this.loginForm.getRawValue() as LoginRequest;
+
+      this.authService.login(credentials).subscribe({
+        next: (response: LoginResponse) => {
+          this.isSubmitting.set(false);
+          this.router.navigateByUrl('/home');
         },
-        error: err => console.error('Error al crear coche:', err),
+        error: (err: HttpErrorResponse) => {
+          this.isSubmitting.set(false);
+          let message = 'Error al iniciar sesión. Verifica tus credenciales.';
+          if (err.status === 0) {
+            message = 'No se pudo conectar al servidor. Verifica que el servidor esté en ejecución.';
+          } else if (err.status === 401) {
+            message = 'Credenciales incorrectas.';
+          } else if (err.error?.message) {
+            message = err.error.message;
+          }
+          this.errorMessage.set(message);
+          console.error('Login error:', err);
+        }
       });
-      this.router.navigateByUrl('/home');
-    } 
+    }
   }
 }

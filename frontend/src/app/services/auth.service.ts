@@ -19,6 +19,7 @@ export class AuthService {
   }
 
   logout(credentials:LogoutRequest): Observable<void> {
+    localStorage.clear();
     return this.http.post<void>(
       `${environment.apiUrl}/auth/logout`,
       credentials,

@@ -6,50 +6,61 @@
     </div>
 
     <!-- Formulario -->
-    <form>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <!-- Campo de nombre de usuario -->
       <div class="mb-3">
         <label for="username" class="form-label">Nombre de usuario</label>
-        <input
-          type="text"
-          class="form-control"
-          id="username"
-          placeholder="Ingresa tu nombre de usuario"
-        />
+        <input type="text" class="form-control" id="username" formControlName="username"
+          placeholder="Ingresa tu nombre de usuario" />
+
+        <!-- Username error -->
+        <div class="invalid-feedback" *ngIf="loginForm.get('username')?.hasError('required')">
+          El nombre de usuario es requerido.
+        </div>
       </div>
 
       <!-- Campo de contraseña -->
       <div class="mb-3">
         <label for="password" class="form-label">Contraseña</label>
-        <input
-          type="password"
-          class="form-control"
-          id="password"
-          placeholder="Ingresa tu contraseña"
-        />
+        <input type="password" class="form-control" id="password" formControlName="password"
+          placeholder="Ingresa tu contraseña" />
+
+        <!-- password error -->
+        <div class="invalid-feedback" *ngIf="loginForm.get('password')?.hasError('required')">
+          La contraseña es requerida.
+        </div>
       </div>
 
       <!-- Texto "¿Has olvidado la contraseña?" y checkbox -->
-      <div class="mb-3">
+      <!-- <div class="mb-3">
         <a class="text-decoration-none">¿Has olvidado la contraseña?</a> <br />
         <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="rememberMe" />
+          <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe" />
           <label class="form-check-label" for="rememberMe">Recuérdame</label>
-        </div>
+        </div> 
+      </div> -->
+
+
+      <!-- Error message -->
+      <div class="alert alert-danger" *ngIf="errorMessage()">
+        {{ errorMessage() }}
       </div>
 
       <!-- Botón de submit -->
       <div class="d-grid mb-3">
-        <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isSubmitting()">{{ isSubmitting()
+          ? 'Iniciando...' : 'Iniciar sesión' }}</button>
       </div>
 
       <!-- Texto para redirigir a registro -->
       <div class="text-center">
         <p>
           ¿No tienes una cuenta?
-          <a class="text-decoration-none">Regístrate aquí</a>
+          <a class="text-decoration-none" routerLink="/sign-in">Regístrate aquí</a>
         </p>
       </div>
     </form>
   </div>
 </div>
+
+{{loginForm.value | json}}
