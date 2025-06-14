@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { UserProfile } from '../models/user.interface';
+import { RegisterRequest, RegisterResponse, UserProfile } from '../models/user.interface';
 import { environment } from '../../environments/environment.prod';
 import { HttpClient } from '@angular/common/http';
 
@@ -10,12 +10,42 @@ import { HttpClient } from '@angular/common/http';
 export class UserService {
   private readonly http = inject(HttpClient);
 
+  userRegister(credentials: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${environment.apiUrl}/user/register`, credentials).pipe(
+      tap((response) => console.log('UserService: User register:', response))
+    );
+  }
+
+    adminRegister(credentials: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${environment.apiUrl}/user/register-admin`, credentials).pipe(
+      tap((response) => console.log('UserService: User register:', response))
+    );
+  }
+
+  // editUserProfile
+
+  // getAllUsers
+
   getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${environment.apiUrl}/auth/profile`).pipe(
+    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`).pipe(
       tap((profile) => {
-        console.log('AuthService: User profile:', profile);
+        console.log('UserService: User profile:', profile);
         localStorage.setItem('photoUrl', profile.photoUrl || '');
       })
     );
   }
+
+  // updateProfilePicture
+
+  // deleteProfilePicture
+
+  // changePassword
+
+  // forgotPassword
+
+  // resetPassword
+
+  // changeUserRole
+
+  // deleteUser
 }
