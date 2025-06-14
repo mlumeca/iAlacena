@@ -1,0 +1,63 @@
+.responsive-body {
+    margin-top: 2vw;
+    max-width: 1200px;
+    width: 80%;
+}
+
+.btn-primary {
+    background-color: #CE9667;
+    border: none;
+    border-radius: 8px;
+    color: white;
+}
+
+.search-bar {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.sb-item {
+    background-color: #FFDEC2;
+    border: none;
+}
+
+input::placeholder {
+  color: #542D0C;
+}
+
+.search-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.recipe-list {
+    display: grid;
+    gap: 20px;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card img {
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.pagination .page-link {
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .card {
+        flex-direction: column;
+    }
+
+    .card img {
+        max-height: 150px;
+    }
+}
