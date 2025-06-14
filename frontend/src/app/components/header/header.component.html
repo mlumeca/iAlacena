@@ -1,1 +1,19 @@
-<p>header works!</p>
+<section class="header d-flex justify-content-between align-items-center">
+  <img src="/assets/img/Logo-letter.svg" alt="Logo" class="img-fluid logo" />
+  
+  @if (isAuthenticated()) {
+    <div ngbDropdown class="d-inline-block">
+      <button type="button" class="btn avatar-btn" id="dropdownBasic1" ngbDropdownToggle>
+        <img [src]="userPhoto" alt="User Avatar" class="avatar rounded-circle" />
+      </button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu">
+        <a ngbDropdownItem class="text-light ms-1" routerLink="/profile">Perfil</a>
+        <a ngbDropdownItem class="text-light ms-1" routerLink="/favorites">Favoritos</a>
+        <a ngbDropdownItem class="text-light ms-1" routerLink="/shopping-cart">Cesta de la compra</a>
+        <a ngbDropdownItem class="text-light ms-1" routerLink="/inventory">Despensa</a>
+        <hr />
+        <button ngbDropdownItem class="text-light ms-1" (click)="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  }
+</section>

@@ -15,3 +15,9 @@ h1, h2, h3, p, label, a {
 input {
     border-color: #CE9667;
 }
+
+section {
+    background-color: #CE9667;
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
