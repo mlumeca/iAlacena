@@ -1,1 +1,85 @@
-<p>sign-in works!</p>
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="card">
+        <!-- Logo -->
+        <div class="logo text-center">
+            <img src="/assets/img/logo.svg" alt="Form Logo" class="img-fluid" />
+        </div>
+
+        <!-- Formulario -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <!-- Campo de nombre de usuario -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Nombre de usuario *</label>
+                <input type="text" class="form-control" id="username" formControlName="username"
+                    placeholder="Ingresa tu nombre de usuario" />
+
+                <!-- Username error -->
+                <div class="invalid-feedback" *ngIf="loginForm.get('username')?.hasError('required')">
+                    El nombre de usuario es requerido.
+                </div>
+            </div>
+
+            <!-- Campo de correo electrónico -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo electrónico *</label>
+                <input type="email" class="form-control" id="email" formControlName="email"
+                    placeholder="Ingresa tu correo electrónico" />
+
+                <!-- Email error -->
+                <div class="invalid-feedback" *ngIf="loginForm.get('email')?.hasError('required')">
+                    El correo electrónico es requerido.
+                </div>
+            </div>
+
+            <!-- Campo de contraseña -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña *</label>
+                <input type="password" class="form-control" id="password" formControlName="password"
+                    placeholder="Ingresa tu contraseña" />
+
+                <!-- password error -->
+                <div class="invalid-feedback" *ngIf="loginForm.get('password')?.hasError('required')">
+                    La contraseña es requerida.
+                </div>
+            </div>
+
+            <!-- Campo de verificar contraseña -->
+            <div class="mb-3">
+                <label for="verifyPassword" class="form-label">Confirma tu contraseña *</label>
+                <input type="password" class="form-control" id="verifyPassword" formControlName="verifyPassword"
+                    placeholder="Confirma tu contraseña" />
+
+                <!-- verifyPassword error -->
+                @if (loginForm.get('verifyPassword')?.hasError('required')) {
+                <div class="invalid-feedback">
+                    Confirmar la contraseña es requerido.
+                </div>
+                } @else if (loginForm.get('verifyPassword')?.hasError('PasswordNoMatch')) {
+                <div class="invalid-feedback">
+                    Las contraseñas no coinciden.
+                </div>
+                }
+            </div>
+
+            <!-- Error message -->
+            <div class="alert alert-danger" *ngIf="errorMessage()">
+                {{ errorMessage() }}
+            </div>
+
+            <!-- Botón de submit -->
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isSubmitting()">{{
+                    isSubmitting()
+                    ? 'Registrando...' : 'Registrarse' }}</button>
+            </div>
+
+            <!-- Texto para redirigir a registro -->
+            <div class="text-center">
+                <p>
+                    ¿Ya tienes una cuenta?
+                    <a class="text-decoration-none" routerLink="/login">Inicia sesión</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>

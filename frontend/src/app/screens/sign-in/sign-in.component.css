@@ -1,0 +1,23 @@
+.card {
+  background-color: #FFFBF8;
+  border-radius: 8px;
+  border: 2px;
+  border-color: #CE9667;
+  margin: 5%;
+  padding: 5% 12%;
+}
+
+.logo {
+  padding-bottom: 10%;
+}
+
+.btn-primary {
+  background-color: #CE9667;
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
+
+.alert {
+  max-width:fit-content;
+}

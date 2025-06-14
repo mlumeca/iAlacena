@@ -1,5 +1,5 @@
 * {
-    font-family: Roboto, sans-serif;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 body {
@@ -19,5 +19,3 @@ input {
 section {
     background-color: #CE9667;
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
