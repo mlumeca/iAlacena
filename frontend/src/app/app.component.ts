@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 
@@ -12,4 +12,10 @@ import { FooterComponent } from './components/footer/footer.component';
 })
 export class AppComponent {
   title = 'frontend';
+  private readonly router = inject(Router);
+
+    showHeader(): boolean {
+    const currentUrl = this.router.url;
+    return !['/login', '/sign-in'].includes(currentUrl);
+  }
 }
