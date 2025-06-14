@@ -1,1 +1,91 @@
-<p>home works!</p>
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="responsive-body">
+        <!-- Create Recipe Button -->
+        <div class="mb-3 d-flex text-center">
+            <a class="btn btn-primary" routerLink="/new-recipe" aria-label="Create new recipe">Crear nueva receta</a>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar row mb-3">
+            <div class="col-10">
+                <input type="text" class="sb-item form-control" placeholder="Busca por nombre o categoría"
+                    [(ngModel)]="searchTerm" (ngModelChange)="onSearch($event)" aria-label="Search recipes" />
+            </div>
+            <div class="col-2">
+                <button class="sb-item btn btn-outline-secondary w-100" aria-label="Search">
+                    <img src="/assets/img/icons/search-icon.svg" alt="Search icon" class="search-icon" />
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+        <div class="text-center my-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+        }
+
+        <!-- Error Message -->
+        @if (errorMessage()) {
+        <div class="alert alert-danger text-center" role="alert">
+            {{ errorMessage() }}
+        </div>
+        }
+
+        <!-- Recipe List -->
+        @if (!isLoading() && !errorMessage()) {
+        <div class="recipe-list">
+            @for (recipe of recipes(); track trackByRecipeId($index, recipe)) {
+            <div class="card mb-3" routerLink="/recipe-detail">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img [src]="recipe.imgUrl" class="img-fluid rounded-start" alt="{{ recipe.name }}" />
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ recipe.name }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">Categorías: {{ recipe.categories | categories }}</small>
+                            </p>
+                            <a class="btn btn-outline-primary" [routerLink]="['/recipe', recipe.id]"
+                                aria-label="View recipe details">Ver detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            } @empty {
+            <div class="text-center my-3">
+                <p>No se encontraron recetas.</p>
+            </div>
+            }
+        </div>
+        }
+
+        <!-- Pagination -->
+        @if (totalPages() > 1 && !isLoading()) {
+        <nav aria-label="Recipe pagination" class="mt-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" [class.disabled]="currentPage() === 0">
+                    <button class="page-link" (click)="previousPage()" aria-label="Previous page">Anterior</button>
+                </li>
+                @for (page of pageRange(); track page) {
+                <li class="page-item" [class.active]="currentPage() === page">
+                    <button class="page-link" (click)="goToPage(page)">{{ page + 1 }}</button>
+                </li>
+                }
+                <li class="page-item" [class.disabled]="currentPage() === totalPages() - 1">
+                    <button class="page-link" (click)="nextPage()" aria-label="Next page">Siguiente</button>
+                </li>
+            </ul>
+        </nav>
+        <div class="text-center mt-2">
+            <small>
+                Mostrando {{ paginationInfo().start }} - {{ paginationInfo().end }} de {{ paginationInfo().total }}
+                recetas
+            </small>
+        </div>
+        }
+    </div>
+</div>
