@@ -1,1 +1,46 @@
-<p>profile works!</p>
+<!-- Back Arrow Icon -->
+<div class="back-arrow">
+  <a routerLink="/home">
+    <img src="assets/img/icons/arrow-icon.svg" alt="Back to Home" class="arrow-icon" />
+  </a>
+</div>
+
+<!-- Responsive Body -->
+<div class="container profile-container">
+  <div class="row align-items-start">
+    <!-- Avatar Column -->
+    <div class="col-12 col-md-4 text-center mb-5 mb-md-0">
+      <div class="avatar-container">
+        <img [src]="user?.photoUrl || 'assets/img/default-avatar.png'" alt="User Avatar" class="avatar-img" />
+        <img src="assets/img/icons/edit-icon.svg" alt="Edit Avatar" class="edit-icon avatar-edit-icon" role="button" (click)="openEditAvatarDialog()" />
+      </div>
+    </div>
+
+    <!-- User Details Column -->
+    <div class="col-12 col-md-8">
+      <!-- Username with Edit Icon -->
+      <div class="d-flex align-items-center mb-3">
+        <h2 class="username-title me-2 mt-5">Username: {{ user?.username }}</h2>
+        <img src="assets/img/icons/edit-icon.svg" alt="Edit Username" class="edit-icon" role="button" (click)="openEditProfileDialog()" />
+      </div>
+
+      <!-- Email with Edit Icon -->
+      <!-- <div class="d-flex align-items-center mb-3">
+        <p class="profile-field mb-0">{{ user?.email || 'email' }}</p>
+        <img src="assets/img/icons/edit-icon.svg" alt="Edit Email" class="edit-icon ms-2" role="button" (click)="openEditProfileDialog()" />
+      </div> -->
+
+      <!-- Password with Edit Icon -->
+      <div class="d-flex align-items-center mb-4">
+        <p class="profile-field mb-0">Password: ****</p>
+        <img src="assets/img/icons/edit-icon.svg" alt="Edit Password" class="edit-icon ms-2" role="button" (click)="openEditPasswordDialog()" />
+      </div>
+    </div>
+          <!-- Navigation Buttons -->
+      <div class="d-flex flex-column flex-md-row gap-2 mt-5">
+        <a routerLink="/favorites" class="btn btn-primary flex-fill">Favoritos</a>
+        <a routerLink="/shopping-cart" class="btn btn-primary flex-fill">Cesta de la compra</a>
+        <a routerLink="/inventory" class="btn btn-primary flex-fill">Despensa</a>
+      </div>
+  </div>
+</div>

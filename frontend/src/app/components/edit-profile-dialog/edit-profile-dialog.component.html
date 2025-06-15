@@ -1,0 +1,28 @@
+<div class="dialog">
+<h2 mat-dialog-title>Editar Perfil</h2>
+    <mat-dialog-content>
+      <form formGroup="form">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Nombre de usuario</mat-label>
+          <input matInput formControlName="username" required>
+          <mat-error *ngIf="form.get('username')?.hasError('required')">
+            El nombre de usuario es requerido
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" required>
+          <mat-error *ngIf="form.get('email')?.hasError('required')">
+            El email es requerido
+          </mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('email')">
+            Formato de email inválido
+          </mat-error>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Cancelar</button>
+      <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="onSave()">Guardar</button>
+    </mat-dialog-actions>
+    </div>

@@ -11,7 +11,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=alacena
       - SPRING_DATASOURCE_PASSWORD=87654321
       - SPRING_PROFILE_ACTIVE=prod
-      - SENDGRID_API_KEY=
+      - SENDGRID_API_KEY=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
     depends_on:
       pg:
         condition: service_healthy
