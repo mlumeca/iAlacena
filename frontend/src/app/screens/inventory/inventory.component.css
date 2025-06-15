@@ -1,0 +1,106 @@
+.back-arrow {
+  position: absolute;
+  top: 10%;
+  left: 20%;
+  z-index: 1000;
+}
+
+.arrow-icon {
+  width: 30px;
+  height: 30px;
+  transition: opacity 0.3s;
+}
+
+.arrow-icon:hover {
+  opacity: 0.7;
+}
+
+.inventory-container {
+  padding-top: 60px; /* Space for back arrow */
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.btn-primary {
+  background-color: #CE9667;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+}
+
+.btn-primary:hover {
+  background-color: #b87f4f;
+}
+
+.inventory-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ingredient-details {
+  flex-grow: 1;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #555;
+}
+
+.btn-icon {
+  padding: 8px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-outline-secondary:hover .icon,
+.btn-outline-danger:hover .icon {
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+  .inventory-container {
+    padding: 15px;
+  }
+
+  .btn-primary {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .card-text {
+    font-size: 0.9rem;
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+}
