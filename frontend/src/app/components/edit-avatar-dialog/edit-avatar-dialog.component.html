@@ -1,0 +1,14 @@
+<div class="dialog">
+<h2 mat-dialog-title>Actualizar Foto de Perfil</h2>
+    <mat-dialog-content>
+      <div class="text-center mb-3">
+        <img [src]="previewUrl || data.photoUrl || 'assets/img/default-avatar.png'" 
+             alt="Avatar Preview" class="avatar-preview">
+      </div>
+      <input type="file" accept="image/*" (change)="onFileChange($event)" class="form-control mb-3">
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Cancelar</button>
+      <button mat-raised-button [disabled]="!file" (click)="onSave()">Guardar</button>
+    </mat-dialog-actions>
+</div>

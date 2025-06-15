@@ -56,10 +56,6 @@ public class RecipeService {
     }
 
     public Page<Recipe> getAllRecipes(User currentUser, Pageable pageable, String name, Long categoryId) {
-        if (!currentUser.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
-            throw new AccessDeniedException("Only administrators can view all recipes");
-        }
 
         if (name != null && !name.isEmpty() && categoryId != null) {
             return recipeRepository.findByNameContainingIgnoreCaseAndCategoryId(name, categoryId, pageable);
