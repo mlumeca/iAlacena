@@ -20,17 +20,17 @@ services:
     networks:
       - backend
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: dockerfile
-  #   container_name: angular-alacena
-  #   ports:
-  #     - "80:4200"
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - backend
+  angular-app:
+    build:
+      context: ./frontend    
+      dockerfile: Dockerfile
+    ports:
+      - "80:4200"
+    volumes:
+      - ./frontend:/app       
+      - /app/node_modules            
+    container_name: angular-alacena
+    restart: unless-stopped
 
   pg:
     image: postgres:16-alpine
