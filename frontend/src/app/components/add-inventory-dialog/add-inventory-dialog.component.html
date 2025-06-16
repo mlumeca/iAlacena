@@ -1,35 +1,44 @@
-<h2 mat-dialog-title>{{ data?.isEdit ? 'Editar Ingrediente' : 'Añadir Ingrediente' }}</h2>
-<mat-dialog-content>
-    <form formGroup="form">
-        <mat-form-field appearance="outline" class="w-100" *ngIf="!data?.isEdit">
-            <mat-label>Ingrediente</mat-label>
-            <input matInput formControlName="ingredient" [matAutocomplete]="auto" required>
-            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayIngredient">
-                <mat-option *ngFor="let ingredient of filteredIngredients" [value]="ingredient">
-                    {{ ingredient.name }} ({{ ingredient.unitOfMeasure }})
-                </mat-option>
-            </mat-autocomplete>
-            <mat-error *ngIf="form.get('ingredient')?.hasError('required')">
-                El ingrediente es requerido
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="w-100" *ngIf="data?.isEdit">
-            <mat-label>Ingrediente</mat-label>
-            <input matInput [value]="data?.ingredientName" disabled>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Cantidad</mat-label>
-            <input matInput type="number" formControlName="quantity" min="0" step="0.1" required>
-            <mat-error *ngIf="form.get('quantity')?.hasError('required')">
-                La cantidad es requerida
-            </mat-error>
-            <mat-error *ngIf="form.get('quantity')?.hasError('min')">
-                La cantidad debe ser mayor o igual a 0
-            </mat-error>
-        </mat-form-field>
-    </form>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-    <button mat-button (click)="onCancel()">Cancelar</button>
-    <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="onSave()">Guardar</button>
-</mat-dialog-actions>
+<div class="dialog">
+    <h2 mat-dialog-title>{{ data?.isEdit ? 'Editar Ingrediente' : 'Añadir Ingrediente' }}</h2>
+    <mat-dialog-content>
+        <form formGroup="form">
+            <mat-form-field appearance="outline" class="w-100" *ngIf="!data?.isEdit">
+                <mat-label>Ingrediente</mat-label>
+                <input matInput formControlName="ingredient" [matAutocomplete]="auto" required>
+                <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayIngredient">
+                    @for (ingredient of filteredIngredients; track $index) {
+                    <mat-option [value]="ingredient">
+                        {{ ingredient.name }} ({{ ingredient.unitOfMeasure }})
+                    </mat-option>
+                    }
+                </mat-autocomplete>
+                @if (form.get('ingredient')?.hasError('required')) {
+                <mat-error>
+                    El ingrediente es requerido
+                </mat-error>
+                }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100" *ngIf="data?.isEdit">
+                <mat-label>Ingrediente</mat-label>
+                <input matInput [value]="data?.ingredientName" disabled>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" formControlName="quantity" min="0" step="0.1" required>
+                @if (form.get('quantity')?.hasError('required')) {
+                <mat-error>
+                    La cantidad es requerida.
+                </mat-error>
+                } @else if (form.get('quantity')?.hasError('min')) {
+                <mat-error>
+                    La cantidad debe ser mayor o igual a 0.
+                </mat-error>
+                }
+            </mat-form-field>
+        </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button (click)="onCancel()">Cancelar</button>
+        <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="onSave()">Guardar</button>
+    </mat-dialog-actions>
+</div>

@@ -1,3 +1,8 @@
+.dialog {
+    background-color: #FFFBF8;
+    border-radius: 8px;
+}
+
 .w-100 {
     width: 100%;
     margin-bottom: 16px;

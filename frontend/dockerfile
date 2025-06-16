@@ -1,22 +1,7 @@
-FROM node:lts-slim AS build
+FROM node:22-alpine
 WORKDIR /app
-RUN npm install -g @angular/cli
-
 COPY package*.json ./
-RUN npm ci
-
-COPY . ./
-RUN ng build --configuration=production
-
-FROM nginx:stable AS final
-EXPOSE 80
-COPY --from=build src/dist/angular-app/browser  /usr/share/nginx/html
-
-
-# FROM node:22-alpine
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm install -g @angular/cli && npm install
-# COPY . .
-# EXPOSE 4200
-# CMD ["ng", "serve", "--host", "0.0.0.0"]
+RUN npm install -g @angular/cli && npm install
+COPY . .
+EXPOSE 4200
+CMD ["ng", "serve", "--host", "0.0.0.0"]
