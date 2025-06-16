@@ -1,1 +1,81 @@
-<p>recipe-detail works!</p>
+<!-- Back Arrow Icon -->
+<div class="back-arrow">
+    <a routerLink="/home">
+        <img src="assets/img/icons/arrow-icon.svg" alt="Back to Home" class="arrow-icon" />
+    </a>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Loading or Error State -->
+        @if (isLoading) {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        }
+
+        <!-- Recipe Detail Content -->
+        @else if (!isLoading && !error) {
+        <div class="card shadow-sm">
+            <div class="row g-0">
+                <!-- Image Column -->
+                <div class="col-md-6">
+                    <img src="assets/placeholder-cheesecake.jpg" class="card-img-top img-fluid" alt="Recipe Image" />
+                </div>
+
+                <!-- Info Column -->
+                <div class="col-md-6">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ (recipe$ | async)?.name || 'Loading...' }}</h2>
+
+                        <!-- Dietary Preference Buttons -->
+                         <!-- @for categories from recipe -->
+                        <div class="btn-group mb-3" role="group">
+                            <button type="button" class="btn btn-outline-secondary">Vegetariano</button>
+                        </div>
+
+                        <!-- User Info -->
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="assets/placeholder-avatar.png" class="rounded-circle me-2" alt="User Avatar"
+                                style="width: 30px; height: 30px;" />
+                            <span class="fw-bold me-2">reposteraa</span>
+                            <span class="text-muted">Siguiendo</span>
+                            <button class="btn btn-link p-0 ms-auto">
+                                <i class="far fa-envelope"></i>
+                            </button>
+                            <button class="btn btn-link p-0 ms-2">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+
+                        <!-- Ingredients Section -->
+                        <div class="mb-3">
+                            <h4>Ingredientes para {{ (recipe$ | async)?.portions || 0 }} personas</h4>
+                            <ul class="list-group">
+                                @for (ingredient of (recipe$ | async)?.ingredients; track $index) {
+                                <li class="list-group-item">
+                                    {{ ingredient.quantity }} {{ ingredient.unitOfMeasure }} {{ ingredient.name }}
+                                </li>
+                                }
+                            </ul>
+                        </div>
+
+                        <!-- Instructions Section -->
+                        <div>
+                            <p class="card-text">{{ (recipe$ | async)?.description || 'Loading...' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+        @else if (error) {
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        }
+    </div>
+</div>

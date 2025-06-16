@@ -1,6 +1,6 @@
 .back-arrow {
   position: absolute;
-  top: 10%;
+  top: 100px;
   left: 20%;
   z-index: 1000;
 }
