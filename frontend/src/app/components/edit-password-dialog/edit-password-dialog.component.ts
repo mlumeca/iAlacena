@@ -4,12 +4,13 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } fro
 import { UserService } from '../../services/user.service';
 import { EditPasswordRequest, EditProfileResponse } from '../../models/user.interface';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector: 'app-edit-password-dialog',
   standalone: true,
-  imports: [MatFormFieldModule, MatDialogContent, MatDialogActions],
+  imports: [MatFormFieldModule, MatDialogContent, MatDialogActions, CommonModule],
   templateUrl: './edit-password-dialog.component.html',
   styleUrl: './edit-password-dialog.component.css'
 })
