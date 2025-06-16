@@ -41,7 +41,7 @@ public class Recipe {
     @Column
     private String imgUrl;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "recipe_ingredient",
             joinColumns = @JoinColumn(name = "recipe_id"),

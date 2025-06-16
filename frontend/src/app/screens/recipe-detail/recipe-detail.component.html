@@ -1,23 +1,6 @@
-<!-- Back Arrow Icon -->
-<div class="back-arrow">
-    <a routerLink="/home">
-        <img src="assets/img/icons/arrow-icon.svg" alt="Back to Home" class="arrow-icon" />
-    </a>
-</div>
-
 <div class="container mt-4">
     <div class="row">
-        <!-- Loading or Error State -->
-        @if (isLoading) {
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-        }
-
         <!-- Recipe Detail Content -->
-        @else if (!isLoading && !error) {
         <div class="card shadow-sm">
             <div class="row g-0">
                 <!-- Image Column -->
@@ -28,12 +11,15 @@
                 <!-- Info Column -->
                 <div class="col-md-6">
                     <div class="card-body">
-                        <h2 class="card-title">{{ (recipe$ | async)?.name || 'Loading...' }}</h2>
+                        <h2 class="card-title">{{ recipe!.name || 'Loading...' }}</h2>
 
                         <!-- Dietary Preference Buttons -->
-                         <!-- @for categories from recipe -->
                         <div class="btn-group mb-3" role="group">
                             <button type="button" class="btn btn-outline-secondary">Vegetariano</button>
+                            <button type="button" class="btn btn-outline-secondary">Vegano</button>
+                            <button type="button" class="btn btn-outline-secondary">Carnívoro</button>
+                            <button type="button" class="btn btn-outline-secondary">Keto</button>
+                            <button type="button" class="btn btn-outline-secondary">Sin huevo</button>
                         </div>
 
                         <!-- User Info -->
@@ -52,9 +38,9 @@
 
                         <!-- Ingredients Section -->
                         <div class="mb-3">
-                            <h4>Ingredientes para {{ (recipe$ | async)?.portions || 0 }} personas</h4>
+                            <h4>Ingredientes para {{ recipe!.portions || 0 }} personas</h4>
                             <ul class="list-group">
-                                @for (ingredient of (recipe$ | async)?.ingredients; track $index) {
+                                @for (ingredient of recipe!.ingredients; track $index) {
                                 <li class="list-group-item">
                                     {{ ingredient.quantity }} {{ ingredient.unitOfMeasure }} {{ ingredient.name }}
                                 </li>
@@ -64,18 +50,18 @@
 
                         <!-- Instructions Section -->
                         <div>
-                            <p class="card-text">{{ (recipe$ | async)?.description || 'Loading...' }}</p>
+                            <p class="card-text">{{ recipe!.description || 'Loading...' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        }
 
-        @else if (error) {
-        <div class="alert alert-danger" role="alert">
-            {{ error }}
+        @if (errorMessage()) {
+        <div class="alert alert-danger text-center" role="alert">
+            {{ errorMessage() }}
         </div>
         }
+
     </div>
 </div>

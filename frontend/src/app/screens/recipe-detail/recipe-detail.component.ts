@@ -1,19 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { catchError, Observable, of, tap } from 'rxjs';
-import { Recipe } from '../../models/recipe.interface';
-import { RecipeService } from '../../services/recipe.service';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncPipe } from '@angular/common';
+import { RecipeService } from '../../services/recipe.service';
+import { Recipe } from '../../models/recipe.interface';
+import { catchError, of, tap } from 'rxjs';
 
 @Component({
-  selector: 'app-recipe-detail',
+    selector: 'app-recipe-detail',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.css'
 })
 export class RecipeDetailComponent implements OnInit {
-  recipe$!: Observable<Recipe>;
+  recipe: Recipe | null = null;
   recipeId!: number;
   isLoading: boolean = true;
   error: string | null = null;
@@ -35,7 +34,9 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   private loadRecipe(): void {
-    this.recipe$ = this.recipeService.getRecipeById(this.recipeId).pipe(
+
+
+    this.recipeService.getRecipeById(this.recipeId).pipe(
       tap((recipe) => {
         console.log('RecipeDetailComponent: recipe loaded:', recipe);
         this.isLoading = false;
@@ -44,9 +45,8 @@ export class RecipeDetailComponent implements OnInit {
         console.error('Error loading recipe:', error);
         this.error = 'Failed to load recipe details';
         this.isLoading = false;
-        return of(null); // Return null to avoid breaking the stream
+        return of(null);
       })
     );
   }
 }
-
