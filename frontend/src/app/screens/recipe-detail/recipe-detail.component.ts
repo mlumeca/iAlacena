@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RecipeService } from '../../services/recipe.service';
 import { Recipe } from '../../models/recipe.interface';
@@ -12,10 +12,11 @@ import { catchError, of, tap } from 'rxjs';
   styleUrl: './recipe-detail.component.css'
 })
 export class RecipeDetailComponent implements OnInit {
-  recipe: Recipe | null = null;
+    recipe = signal<Recipe>();
   recipeId!: number;
-  isLoading: boolean = true;
+  isLoading = signal<boolean>(false);
   error: string | null = null;
+  errorMessage = signal<string | null>(null);
 
   constructor(
     private route: ActivatedRoute,
