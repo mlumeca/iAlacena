@@ -12,7 +12,7 @@
                     (ngModelChange)="onSearch($event)" aria-label="Search recipes" />
             </div>
             <div class="col-2">
-                <button class="sb-item btn btn-outline-secondary w-100" aria-label="Search">
+                <button class="sb-item btn btn-primary w-100" aria-label="Search">
                     <img src="/assets/img/icons/search-icon.svg" alt="Search icon" class="search-icon" />
                 </button>
             </div>
@@ -54,7 +54,7 @@
                             <p class="card-text">
                                 <small class="text-muted">{{ recipe.description }}</small>
                             </p>
-                            <a class="btn btn-outline-primary" [routerLink]="['/recipe-detail', recipe.id]"
+                            <a class="btn btn-primary" [routerLink]="['/recipe-detail', recipe.id]"
                                 aria-label="View recipe details">Ver detalles</a>
                         </div>
                     </div>
