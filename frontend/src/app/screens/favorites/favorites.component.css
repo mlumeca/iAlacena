@@ -1,0 +1,128 @@
+.back-arrow {
+  position: absolute;
+  top: 100px;
+  left: 20%;
+  z-index: 1000;
+}
+
+.arrow-icon {
+  width: 30px;
+  height: 30px;
+  transition: opacity 0.3s;
+}
+
+.arrow-icon:hover {
+  opacity: 0.7;
+}
+
+.favorites-container {
+  padding-top: 60px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+
+.btn-primary {
+  background-color: #CE9667;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  padding: 10px;
+}
+
+.btn-primary:hover {
+  opacity: 0.8;
+}
+
+.btn-secondary {
+  background-color: #FFDEC2;
+  border: none;
+  border-radius: 8px;
+  color: #542D0C;
+  font-size: 1rem;
+  padding: 10px;
+}
+
+.btn-secondary:hover {
+  opacity: 0.8;
+}
+
+.arrow-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.recipe-list {
+  display: grid;
+  gap: 20px;
+}
+
+.recipe-img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.img-section {
+  margin: 10px;
+}
+
+.card {
+  border: none;
+  background-color: #FFDEC2;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-text,
+.card-title {
+  color: #542D0C;
+}
+
+.btn-favorite {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.favorite-icon {
+  width: 24px;
+  height: 24px;
+  transition: opacity 0.3s;
+}
+
+.favorite-icon:hover {
+  opacity: 0.7;
+}
+
+.pagination .page-link {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+  }
+
+  .card img {
+    max-height: 150px;
+  }
+
+  .btn-favorite {
+    top: 5px;
+    right: 5px;
+  }
+
+  .favorite-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
