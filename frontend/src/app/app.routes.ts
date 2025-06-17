@@ -17,7 +17,7 @@ export const routes: Routes = [
   { path: 'sign-in', component: SignInComponent, canActivate: [noAuthGuard] },
   
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
-  { path: 'recipe-detail', component: RecipeDetailComponent, canActivate: [authGuard] },
+  { path: 'recipe-detail/:id', component: RecipeDetailComponent, canActivate: [authGuard] },
   { path: 'new-recipe', component: NewRecipeComponent, canActivate: [authGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },

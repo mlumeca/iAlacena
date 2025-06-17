@@ -24,14 +24,14 @@ export class InventoryService {
     );
   }
 
-  editInventoryIngredient(userId: string, id:number, credentials: EditRequest): Observable<InventoryResponse> {
+  editInventoryIngredient(userId: string, id: number, credentials: EditRequest): Observable<InventoryResponse> {
     return this.http.put<InventoryResponse>(
       `${environment.apiUrl}/user/${userId}/inventory/${id}`,
       credentials,
     );
   }
 
-  deleteInventoryIngredient(userId: string, id:number): Observable<void> {
+  deleteInventoryIngredient(userId: string, id: number): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/user/${userId}/inventory/${id}`);
   }
 }

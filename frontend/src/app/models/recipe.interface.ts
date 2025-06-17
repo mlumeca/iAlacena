@@ -38,9 +38,11 @@ export interface CreateRecipeRequest {
   categoryIds: number[]
 }
 
-// RecipeListResponse = Recipe[]
-
-
-// export interface RecipeDeleteRequest {
-//   id: string;
-// }
+export interface EditRecipeRequest {
+  name: string
+  description: string
+  portions: number
+  imgUrl: string
+  categoryIds: number[]
+  ingredientIds: number[]
+}

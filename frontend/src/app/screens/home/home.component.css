@@ -5,10 +5,16 @@
 }
 
 .btn-primary {
-    background-color: #CE9667;
-    border: none;
-    border-radius: 8px;
-    color: white;
+  background-color: #CE9667;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  padding: 10px;
+}
+
+.btn-primary:hover {
+  opacity: 0.8;
 }
 
 .search-bar {
@@ -35,7 +41,18 @@ input::placeholder {
     gap: 20px;
 }
 
+.recipe-img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.img-section {
+    margin: 10px;
+}
+
 .card {
+    border: none;
+    background-color: #FFDEC2;
     transition: transform 0.2s;
 }
 
@@ -43,9 +60,8 @@ input::placeholder {
     transform: translateY(-5px);
 }
 
-.card img {
-    max-height: 200px;
-    object-fit: cover;
+.card-text, .card-title {
+    color: #542D0C;
 }
 
 .pagination .page-link {

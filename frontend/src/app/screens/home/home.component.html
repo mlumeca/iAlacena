@@ -8,11 +8,11 @@
         <!-- Search Bar -->
         <div class="search-bar row mb-3">
             <div class="col-10">
-                <input type="text" class="sb-item form-control" placeholder="Busca por nombre o categoría"
-                    [(ngModel)]="searchTerm" (ngModelChange)="onSearch($event)" aria-label="Search recipes" />
+                <input type="text" class="sb-item form-control" placeholder="Busca por nombre" [(ngModel)]="searchTerm"
+                    (ngModelChange)="onSearch($event)" aria-label="Search recipes" />
             </div>
             <div class="col-2">
-                <button class="sb-item btn btn-outline-secondary w-100" aria-label="Search">
+                <button class="sb-item btn btn-primary w-100" aria-label="Search">
                     <img src="/assets/img/icons/search-icon.svg" alt="Search icon" class="search-icon" />
                 </button>
             </div>
@@ -39,17 +39,22 @@
         <div class="recipe-list">
             @for (recipe of recipes(); track trackByRecipeId($index, recipe)) {
             <div class="card mb-3" routerLink="/recipe-detail">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img [src]="recipe.imgUrl" class="img-fluid rounded-start" alt="{{ recipe.name }}" />
+                <div class="row g-0 d-flex justify-content-center">
+                    <div class="col-md-3 img-section">
+                        <!-- [src]="recipe.imgUrl" dynamic img -->
+                        <img src="assets/img/default-recipe-img.jpg" class="img-fluid recipe-img"
+                            alt="{{ recipe.name }} image" />
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-6">
                         <div class="card-body">
                             <h5 class="card-title">{{ recipe.name }}</h5>
                             <p class="card-text">
                                 <small class="text-muted">Categorías: {{ recipe.categories | categories }}</small>
                             </p>
-                            <a class="btn btn-outline-primary" [routerLink]="['/recipe', recipe.id]"
+                            <p class="card-text">
+                                <small class="text-muted">{{ recipe.description }}</small>
+                            </p>
+                            <a class="btn btn-primary" [routerLink]="['/recipe-detail', recipe.id]"
                                 aria-label="View recipe details">Ver detalles</a>
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { CreateRecipeRequest, Recipe, RecipeListResponse } from '../models/recipe.interface';
+import { CreateRecipeRequest, EditRecipeRequest, Recipe, RecipeListResponse } from '../models/recipe.interface';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment.prod';
 
@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment.prod';
 })
 export class RecipeService {
   private readonly http = inject(HttpClient);
-  
+
   getRecipeList(params: { page?: number; size?: number; name?: string; categoryId?: number }): Observable<RecipeListResponse> {
     let httpParams = new HttpParams();
     if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
@@ -23,21 +23,22 @@ export class RecipeService {
   }
 
   getRecipeById(id: number): Observable<Recipe> {
-    return this.http.get<Recipe>(`${environment.apiUrl}/recipe/${id}`).pipe(
-      tap((response) => console.log('UserService: User register:', response))
+    return this.http.get<Recipe>(`${environment.apiUrl}/recipe/${id}`
     );
   }
 
   createRecipe(recipe: CreateRecipeRequest): Observable<Recipe> {
-    return this.http.post<Recipe>(`${environment.apiUrl}/recipe/create`, recipe).pipe(
-      tap((response) => console.log('UserService: User register:', response))
+    return this.http.post<Recipe>(`${environment.apiUrl}/recipe/create`, recipe
     );
   }
 
-  // editRecipe(recipe: RecipeBody)
+  editRecipe(id: number, recipe: EditRecipeRequest): Observable<Recipe> {
+    return this.http.put<Recipe>(`${environment.apiUrl}/recipe/${id}`, recipe
+    );
+  }
 
-  // editRecipeIngredients()
-
-  // deleteRecipe()
+  deleteRecipe(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/recipe/${id}`);
+  }
 
 }
