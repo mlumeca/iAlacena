@@ -1,1 +1,105 @@
-<p>new-recipe works!</p>
+<div class="form-container">
+    <!-- Loading State -->
+    @if (isLoading()) {
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (errorMessage()) {
+    <div class="alert alert-danger text-center" role="alert">
+        {{ errorMessage() }}
+    </div>
+    }
+
+    <!-- Success State -->
+    @if (successMessage()) {
+    <div class="alert alert-success text-center" role="alert">
+        {{ successMessage() }}
+    </div>
+    }
+
+    <!-- Back Arrow -->
+    <a href="/home" class="back-arrow">
+        <img src="assets/img/icons/arrow-icon.svg" alt="Back" class="arrow-icon" />
+    </a>
+
+    <!-- Form Title -->
+     <h2 class="mb-5">Nueva Receta</h2>
+
+    <!-- Form -->
+    <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+        <div class="row g-3 flex-wrap">
+
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Título</label>
+                    <input type="text" id="name" class="form-control" formControlName="name"
+                        [class.is-invalid]="recipeForm.get('name')?.invalid && recipeForm.get('name')?.touched" />
+                    <div *ngIf="recipeForm.get('name')?.invalid && recipeForm.get('name')?.touched"
+                        class="invalid-feedback">
+                        Please enter a valid title (max 100 characters).
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descripción</label>
+                    <textarea id="description" class="form-control" formControlName="description" rows="6"
+                        [class.is-invalid]="recipeForm.get('description')?.invalid && recipeForm.get('description')?.touched"></textarea>
+                    <div *ngIf="recipeForm.get('description')?.invalid && recipeForm.get('description')?.touched"
+                        class="invalid-feedback">
+                        Please enter a description (max 1000 characters).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="portions" class="form-label">Porciones</label>
+                    <input type="number" id="portions" class="form-control" formControlName="portions"
+                        [class.is-invalid]="recipeForm.get('portions')?.invalid && recipeForm.get('portions')?.touched" />
+                    <div *ngIf="recipeForm.get('portions')?.invalid && recipeForm.get('portions')?.touched"
+                        class="invalid-feedback">
+                        Please enter a number between 1 and 100.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ingredients" class="form-label">Ingredientes</label>
+                    <textarea id="ingredients" class="form-control" formControlName="ingredients" rows="6"
+                        [class.is-invalid]="recipeForm.get('ingredients')?.invalid && recipeForm.get('ingredients')?.touched"></textarea>
+                    <div *ngIf="recipeForm.get('ingredients')?.invalid && recipeForm.get('ingredients')?.touched"
+                        class="invalid-feedback">
+                        Please enter ingredients (max 500 characters).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Field -->
+            <!--
+      <div class="col-12">
+        <div class="mb-3">
+          <label for="image" class="form-label">Imagen</label>
+          <input type="file" id="image" class="form-control" formControlName="image" />
+          <div *ngIf="recipeForm.get('image')?.invalid && recipeForm.get('image')?.touched" class="invalid-feedback">
+            Please upload a valid image file.
+          </div>
+        </div>
+      </div>
+      -->
+
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-md-6 offset-md-6 mb-5">
+            <button type="submit" class="btn btn-primary w-100" [disabled]="recipeForm.invalid || isLoading()">
+                Crear nueva receta
+            </button>
+        </div>
+    </form>
+</div>
