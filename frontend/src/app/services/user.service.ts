@@ -22,9 +22,9 @@ export class UserService {
     );
   }
 
-  editUserProfile(credentials: EditProfileRequest): Observable<EditProfileResponse> {
+  editUserProfile(userId:string, credentials: EditProfileRequest): Observable<EditProfileResponse> {
     return this.http.put<EditProfileResponse>(
-      `${environment.apiUrl}/user/profile`,
+      `${environment.apiUrl}/profile/${userId}`,
       credentials,
     );
   }
@@ -46,16 +46,16 @@ export class UserService {
     return this.http.get<ProfileListResponse>(`${environment.apiUrl}/user/all`, { params: httpParams }
     );
   }
-
-  getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`).pipe(
+  getUserProfile(userId:string): Observable<UserProfile> {
+    const url = `${environment.apiUrl}/profile/${userId}`;
+    console.log('UserService: Fetching profile from', url);
+    return this.http.get<UserProfile>(url).pipe(
       tap((profile) => {
         console.log('UserService: User profile:', profile);
         localStorage.setItem('photoUrl', profile.photoUrl || '');
       })
     );
   }
-
   updateProfilePicture(id: string, credentials: PostAvatarRequest): Observable<PostAvatarResponse> {
     return this.http.put<PostAvatarResponse>(
       `${environment.apiUrl}/user/${id}/profile-picture`,
@@ -66,8 +66,8 @@ export class UserService {
   deleteProfilePicture(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/user/${id}/profile-picture`);
   }
- 
-    changePassword(credentials: EditPasswordRequest): Observable<EditProfileResponse> {
+
+  changePassword(credentials: EditPasswordRequest): Observable<EditProfileResponse> {
     return this.http.put<EditProfileResponse>(
       `${environment.apiUrl}/user/change-password`,
       credentials,
@@ -85,7 +85,7 @@ export class UserService {
     );
   }
 
-    deleteUser(id: string): Observable<void> {
+  deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/user/${id}`);
   }
 }

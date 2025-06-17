@@ -23,7 +23,7 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.userService.getUserProfile().subscribe({
+    this.userService.getUserProfile(localStorage.getItem('id') || '').subscribe({
       next: (profile: UserProfile) => {
         this.user = profile;
       },

@@ -25,7 +25,7 @@ export class ShoppingCartComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.userService.getUserProfile().subscribe({
+    this.userService.getUserProfile(localStorage.getItem('id') || '').subscribe({
       next: (profile) => {
         this.userId = profile.id;
         this.loadShoppingCart();

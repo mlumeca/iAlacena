@@ -532,7 +532,7 @@ VALUES
     (25, '550e8400-e29b-41d4-a716-446655440025', '2025-02-24 12:00:00');
 
 -- Insert Shopping Cart Items
-INSERT INTO shopping_cart_itemnau (id, shopping_cart_id, ingredient_id, quantity)
+INSERT INTO shopping_cart_item (id, shopping_cart_id, ingredient_id, quantity)
 VALUES
     (1, 1, 1, 1),    -- user1: Pollo
     (2, 1, 90, 2),   -- user1: Arroz
