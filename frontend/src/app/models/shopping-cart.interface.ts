@@ -1,5 +1,5 @@
-export interface InventoryListResponse {
-  content: InventoryItem[]
+export interface ShoppingCart {
+  content: ShoppingCartItem[]
   pageable: Pageable
   totalElements: number
   totalPages: number
@@ -7,12 +7,17 @@ export interface InventoryListResponse {
   number: number
 }
 
-export interface InventoryItem {
+// Post Response
+export interface ShoppingCartItem {
   id: number
   userId: string
+  createdAt: string
+  items: Item[]
+}
+
+export interface Item {
   ingredientId: number
   quantity: number
-  addedAt: string
 }
 
 export interface Pageable {
@@ -23,20 +28,18 @@ export interface Pageable {
   unpaged: boolean
 }
 
-export interface PostRequest {
+// Post Request
+export interface addCartIngredient {
   ingredientId: number
-  quantity: number
 }
 
 export interface EditRequest {
   quantity: number;
 }
 
-// response for put and post
-export interface InventoryResponse {
+export interface EditResponse {
   id: number
-  userId: string
+  shoppingCartId: number
   ingredientId: number
   quantity: number
-  addedAt: string
 }

@@ -13,8 +13,7 @@ export class AuthService {
   private readonly router = inject(Router);
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, credentials).pipe(
-      tap((response) => console.log('AuthService: Login response:', response))
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, credentials
     );
   }
 
@@ -39,7 +38,7 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem('token');
-    console.log('AuthService: isAuthenticated, token exists:', !!token);
+    // console.log('AuthService: isAuthenticated, token exists:', !!token);
     return !!token;
   }
 }

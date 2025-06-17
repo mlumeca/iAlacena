@@ -17,8 +17,7 @@ export class RecipeService {
     if (params.name) httpParams = httpParams.set('name', params.name);
     if (params.categoryId !== undefined) httpParams = httpParams.set('categoryId', params.categoryId.toString());
 
-    return this.http.get<RecipeListResponse>(`${environment.apiUrl}/recipe`, { params: httpParams }).pipe(
-      tap((response) => console.log('RecipeService: getRecipeList response:', response))
+    return this.http.get<RecipeListResponse>(`${environment.apiUrl}/recipe`, { params: httpParams }
     );
   }
 

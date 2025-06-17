@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar Ingrediente' : 'Añadir Ingrediente al Carrito' }}</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="form" class="dialog-form">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
+            <mat-label>ID del Ingrediente</mat-label>
+            <input matInput formControlName="ingredientId" type="number" readonly="isEdit" />
+            @if (form.get('ingredientId')?.invalid && form.get('ingredientId')?.touched) {
+            <mat-error>
+                Please enter a valid ingredient ID (greater than 0).
+            </mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-100 mb-3">
+            <mat-label>Cantidad</mat-label>
+            <input matInput formControlName="quantity" type="number" />
+            @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
+            <mat-error>
+                Please enter a quantity between 1 and 100.
+            </mat-error>
+            }
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancelar</button>
+    <button mat-button (click)="onSave()" [disabled]="form.invalid" color="primary">
+        {{ isEdit ? 'Guardar' : 'Añadir' }}
+    </button>
+</mat-dialog-actions>
