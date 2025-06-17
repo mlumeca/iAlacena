@@ -33,7 +33,7 @@ export class FavoritesComponent implements OnInit {
   private pageSize = 10;
 
   ngOnInit(): void {
-    this.userService.getUserProfile().pipe(
+    this.userService.getUserProfile(localStorage.getItem('id') || '').pipe(
       tap(profile => {
         this.userId.set(profile.id);
         this.loadFavorites();

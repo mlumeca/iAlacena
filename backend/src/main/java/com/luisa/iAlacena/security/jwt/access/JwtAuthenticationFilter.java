@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
+        logger.info("Intercepted request to: " + requestURI);
         if ("/user/register".equals(requestURI) || "/user/register-admin".equals(requestURI) ||
                 "/auth/login".equals(requestURI) || "/auth/activate".equals(requestURI)) {
             filterChain.doFilter(request, response);
@@ -48,10 +49,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = getJwtAccessTokenFromRequest(request);
+        logger.info("Extracted token: " + token);
 
         try {
             if (StringUtils.hasText(token) && jwtService.validateAccessToken(token)) {
                 UUID id = jwtService.getUserIdFromAccessToken(token);
+                System.out.println("getUserIdFromAccessToken" + id);
                 Optional<User> result = userRepository.findById(id);
 
                 if (result.isPresent()) {
@@ -60,9 +63,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                     authenticationToken.setDetails(new WebAuthenticationDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    logger.info("Authentication set for user: " + user.getUsername());
                 }
             }
         } catch (JwtException ex) {
+            logger.info("JWT validation failed: " + ex.getMessage());
             resolver.resolveException(request, response, null, ex);
         }
 

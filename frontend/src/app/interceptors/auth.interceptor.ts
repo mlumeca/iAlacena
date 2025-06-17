@@ -4,9 +4,9 @@ import { LoginResponse } from '../models/auth.interface';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isLoginRequest = req.url.includes('/auth/login');
-  let token = localStorage.getItem('token') || '';
+  let token = localStorage.getItem('token') ||  localStorage.getItem('access_token') || '';
 
-  // console.log('Interceptor: Processing request to', req.url, 'with token:', token);
+  console.log('Interceptor: Processing request to', req.url, 'with token:', token);
 
   const newRequest = isLoginRequest
     ? req.clone()
@@ -18,15 +18,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     tap({
       next: (event) => {
         if (isLoginRequest && event instanceof HttpResponse && event.status === 200) {
-          // console.log('Interceptor: Login response:', event.body);
+          console.log('Interceptor: Login response:', event.body);
           const loginResponse = event.body as LoginResponse;
           if (loginResponse?.id && loginResponse?.username && loginResponse?.token && loginResponse?.refreshToken) {
-            // console.log('Interceptor: Storing login data in localStorage');
+            console.log('Interceptor: Storing login data in localStorage');
             localStorage.setItem('id', loginResponse.id);
             localStorage.setItem('username', loginResponse.username);
             localStorage.setItem('token', loginResponse.token);
             localStorage.setItem('refreshToken', loginResponse.refreshToken);
-            // console.log('Interceptor: Token stored:', loginResponse.token); // Debug token
+            console.log('Interceptor: Token stored:', loginResponse.token);
           } else {
             console.warn('Interceptor: Invalid login response:', loginResponse);
           }

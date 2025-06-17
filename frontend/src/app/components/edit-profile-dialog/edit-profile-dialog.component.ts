@@ -32,7 +32,7 @@ export class EditProfileDialogComponent {
   onSave() {
     if (this.form.valid) {
       const request: EditProfileRequest = this.form.value;
-      this.userService.editUserProfile(request).subscribe({
+      this.userService.editUserProfile(localStorage.getItem('id') || '', request).subscribe({
         next: (response: EditProfileResponse) => {
           this.dialogRef.close(response);
         },
