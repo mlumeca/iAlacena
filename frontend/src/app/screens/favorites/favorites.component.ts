@@ -6,11 +6,12 @@ import { UserService } from '../../services/user.service';
 import { Favorites, FavoriteItem, NewFavoriteRequest } from '../../models/favorites.interface';
 import { Recipe } from '../../models/recipe.interface';
 import { catchError, of, tap } from 'rxjs';
+import { CategoriesPipe } from '../../pipes/categories.pipe';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CategoriesPipe],
   templateUrl: './favorites.component.html',
   styleUrl: './favorites.component.css'
 })

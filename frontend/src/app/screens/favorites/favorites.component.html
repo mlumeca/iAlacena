@@ -1,12 +1,13 @@
-<div class="container d-flex justify-content-center align-items-center">
-  <div class="responsive-body">
-    <!-- Back Arrow (optional, adjust link as needed) -->
-    <div class="mb-3 d-flex justify-content-start">
-      <a class="btn btn-secondary" routerLink="/home" aria-label="Back to Home">
-        <img src="/assets/img/icons/arrow-icon.svg" alt="Back" class="arrow-icon" />
-      </a>
-    </div>
+<!-- Back Arrow Icon -->
+<div class="back-arrow">
+  <a href="/home">
+    <img src="assets/img/icons/arrow-icon.svg" alt="Back to Home" class="arrow-icon" />
+  </a>
+</div>
 
+
+<div class="container d-flex justify-content-center align-items-center">
+  <div class="favorites-container">
     <!-- Loading State -->
     @if (isLoading()) {
     <div class="text-center my-3">
@@ -27,7 +28,7 @@
     @if (!isLoading() && !errorMessage()) {
     <div class="recipe-list">
       @for (recipe of recipes(); track trackByRecipeId($index, recipe)) {
-      <div class="card mb-3" [routerLink]="['/recipe-detail', recipe.id]">
+      <div class="card mb-3" routerLink="['/recipe-detail', recipe.id]">
         <div class="row g-0 d-flex justify-content-center">
           <div class="col-md-3 img-section">
             <img src="assets/img/default-recipe-img.jpg" class="img-fluid recipe-img" alt="{{ recipe.name }} image" />
@@ -41,16 +42,14 @@
               <p class="card-text">
                 <small class="text-muted">{{ recipe.description }}</small>
               </p>
-              <a class="btn btn-primary" [routerLink]="['/recipe-detail', recipe.id]" aria-label="View recipe details">
+              <a class="btn btn-primary" routerLink="['/recipe-detail', recipe.id]" aria-label="View recipe details">
                 Ver detalles
               </a>
               <!-- Favorite Icon -->
               <button class="btn-favorite" (click)="toggleFavorite(recipe.id); $event.stopPropagation()">
                 <img
                   src="/assets/img/icons/{{ isRecipeFavorite(recipe.id) ? 'heart-touched-icon.svg' : 'heart-untouched-icon.svg' }}"
-                  alt="Toggle favorite"
-                  class="favorite-icon"
-                />
+                  alt="Toggle favorite" class="favorite-icon" />
               </button>
             </div>
           </div>
