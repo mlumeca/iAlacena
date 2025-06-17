@@ -16,29 +16,12 @@
 }
 
 .recipe-detail-container {
-  padding-top: 60px; /* Space for back arrow */
+  padding-top: 60px;
+  /* Space for back arrow */
   max-width: 800px;
   margin: 0 auto;
 }
+
 .card {
   border: none;
-  border-radius: 10px;
-}
-
-.btn-outline-secondary {
-  color: #d3a98e;
-  border-color: #d3a98e;
-
-  &:hover {
-    background-color: #d3a98e;
-    color: #fff;
-  }
-}
-
-.user-info .btn-link {
-  color: #d3a98e;
-
-  &:hover {
-    color: #b87d66;
-  }
 }

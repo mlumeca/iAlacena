@@ -1,67 +1,68 @@
-<div class="container mt-4">
-    <div class="row">
-        <!-- Recipe Detail Content -->
-        <div class="card shadow-sm">
-            <div class="row g-0">
-                <!-- Image Column -->
-                <div class="col-md-6">
-                    <img src="assets/placeholder-cheesecake.jpg" class="card-img-top img-fluid" alt="Recipe Image" />
-                </div>
+<div class="recipe-detail-container">
+    <!-- Back Arrow -->
+    <a routerLink="/home" class="back-arrow">
+        <img src="assets/img/icons/arrow-icon.svg" alt="Back" class="arrow-icon" />
+    </a>
 
-                <!-- Info Column -->
-                <div class="col-md-6">
-                    <div class="card-body">
-                        <h2 class="card-title">{{ recipe!.name || 'Loading...' }}</h2>
+    <!-- Recipe Detail Content -->
+    @if (recipe) {
+    <div class="card">
+        <div class="row g-0">
+            <!-- Image Column -->
+            <div class="col-md-6">
+                <img src="assets/img/default-recipe-img.jpg" class="card-img-top img-fluid" alt="Recipe Image" />
+            </div>
 
-                        <!-- Dietary Preference Buttons -->
-                        <div class="btn-group mb-3" role="group">
-                            <button type="button" class="btn btn-outline-secondary">Vegetariano</button>
-                            <button type="button" class="btn btn-outline-secondary">Vegano</button>
-                            <button type="button" class="btn btn-outline-secondary">Carnívoro</button>
-                            <button type="button" class="btn btn-outline-secondary">Keto</button>
-                            <button type="button" class="btn btn-outline-secondary">Sin huevo</button>
-                        </div>
+            <!-- Info Column -->
+            <div class="col-md-6">
+                <div class="card-body">
+                    <h2 class="card-title">{{ recipe.name || 'Loading...' }}</h2>
 
-                        <!-- User Info -->
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="assets/placeholder-avatar.png" class="rounded-circle me-2" alt="User Avatar"
-                                style="width: 30px; height: 30px;" />
-                            <span class="fw-bold me-2">reposteraa</span>
-                            <span class="text-muted">Siguiendo</span>
-                            <button class="btn btn-link p-0 ms-auto">
-                                <i class="far fa-envelope"></i>
-                            </button>
-                            <button class="btn btn-link p-0 ms-2">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
+                    <!-- Dietary Preference Buttons -->
+                    <div class="btn-group mb-3" role="group">
+                        @for (category of recipe.categories; track $index) {
+                        <button type="button" class="btn btn-outline-secondary">{{recipe.categories[0].name}}</button>
+                        }
+                    </div>
 
-                        <!-- Ingredients Section -->
-                        <div class="mb-3">
-                            <h4>Ingredientes para {{ recipe!.portions || 0 }} personas</h4>
+                    <!-- User Info -->
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="assets/img/default-avatar.png" class="rounded-circle me-2" alt="User Avatar"
+                            style="width: 30px; height: 30px;" />
+                        <span class="fw-bold me-2">reposteraa</span>
+                        <span class="text-muted">Siguiendo</span>
+                        <button class="btn btn-link p-0 ms-2">
+                            <img src="assets/img/icons/favorites-icon.svg" alt="Favorite icon untouched">
+                        </button>
+                    </div>
+
+                    <!-- Ingredients Section -->
+                    <div class="mb-3">
+                        @if (recipe.portions == 1) {
+                        <h4>Ingredientes para {{ recipe.portions || 0 }} persona</h4>
+                        } @else {
+                        <h4>Ingredientes para {{ recipe.portions || 0 }} personas</h4>
+                        } 
                             <ul class="list-group">
-                                @for (ingredient of recipe!.ingredients; track $index) {
-                                <li class="list-group-item">
-                                    {{ ingredient.quantity }} {{ ingredient.unitOfMeasure }} {{ ingredient.name }}
-                                </li>
-                                }
-                            </ul>
-                        </div>
+                        @for (ingredient of recipe.ingredients || []; track $index) {
+                        <li class="list-group-item">
+                            {{ ingredient.quantity }} {{ ingredient.unitOfMeasure }} {{ ingredient.name }}
+                        </li>
+                        }
+                        </ul>
+                    </div>
 
-                        <!-- Instructions Section -->
-                        <div>
-                            <p class="card-text">{{ recipe!.description || 'Loading...' }}</p>
-                        </div>
+                    <!-- Instructions Section -->
+                    <div>
+                        <p class="card-text">{{ recipe.description || 'Loading...' }}</p>
                     </div>
                 </div>
             </div>
         </div>
-
-        @if (errorMessage()) {
-        <div class="alert alert-danger text-center" role="alert">
-            {{ errorMessage() }}
-        </div>
-        }
-
     </div>
+    } @else {
+    <div class="text-center">
+        <p>Loading recipe details...</p>
+    </div>
+    }
 </div>
