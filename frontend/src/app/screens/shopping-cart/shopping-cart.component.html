@@ -1,1 +1,44 @@
-<p>shopping-cart works!</p>
+<!-- Back Arrow Icon -->
+<div class="back-arrow">
+  <a href="/home">
+    <img src="assets/img/icons/arrow-icon.svg" alt="Back to Home" class="arrow-icon" />
+  </a>
+</div>
+
+<!-- Add Ingredient Button -->
+<div class="container shopping-cart-container">
+  <div class="d-flex justify-content-end mb-4">
+    <button class="btn btn-primary" (click)="openAddShoppingCartDialog()">Añadir Ingrediente</button>
+  </div>
+
+  <!-- Shopping Cart List -->
+  <div class="row">
+    @for (item of shoppingCartItems; track $index) {
+    <div class="col-12">
+      <div class="card shopping-cart-card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div class="ingredient-details">
+            <h5 class="card-title mb-1">Ingrediente ID: {{ item.items[0].ingredientId }}</h5>
+            <!-- Placeholder for ingredient name; update when ingredient service is integrated -->
+            <p class="card-text mb-0">x{{ item.items[0].quantity }}</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-icon" (click)="openEditShoppingCartDialog(item)">
+              <img src="assets/img/icons/edit-icon.svg" alt="Edit Ingredient" class="icon" />
+            </button>
+            <button class="btn btn-outline-danger btn-icon" (click)="deleteShoppingCartItem(item.id)">
+              <img src="assets/img/icons/trash-icon.svg" alt="Delete Ingredient" class="icon" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+  <!-- Empty State -->
+  @if (shoppingCartItems.length === 0) {
+  <div class="alert alert-danger text-center" role="alert">
+    <p>No hay ingredientes en tu carrito de compras.</p>
+  </div>
+  }
+</div>
